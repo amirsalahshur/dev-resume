@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رزومه - نام شما</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --text-color: #1f2937;
+            --light-gray: #f3f4f6;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Vazir', 'Tahoma', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f9fafb;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Section */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 60px 40px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid rgba(255,255,255,0.3);
+            object-fit: cover;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .profile-info h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .profile-info .job-title {
+            font-size: 1.3em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .contact-info {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9em;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h2::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        /* About Section */
+        .about-text {
+            line-height: 1.8;
+            text-align: justify;
+        }
+
+        /* Skills Section */
+        .skill-item {
+            margin-bottom: 15px;
+        }
+
+        .skill-name {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .skill-bar {
+            height: 8px;
+            background: var(--light-gray);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .skill-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+            transition: width 2s ease;
+        }
+
+        /* Experience Section */
+        .experience-item {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .experience-item:last-child {
+            border: none;
+            padding-bottom: 0;
+        }
+
+        .experience-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 10px;
+        }
+
+        .company-name {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1.1em;
+        }
+
+        .experience-date {
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+
+        .experience-role {
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .experience-description {
+            color: #4b5563;
+            line-height: 1.7;
+        }
+
+        /* Education Section */
+        .education-item {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .education-item:last-child {
+            border: none;
+            padding-bottom: 0;
+        }
+
+        .degree {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .university {
+            color: #6b7280;
+            font-size: 0.95em;
+        }
+
+        /* Languages Section */
+        .language-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .language-item:last-child {
+            border: none;
+        }
+
+        .language-level {
+            background: var(--light-gray);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+
+        /* Icons (Using Unicode) */
+        .icon {
+            font-size: 1.2em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .profile-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .contact-info {
+                justify-content: center;
+            }
+
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                padding: 40px 20px;
+            }
+
+            .profile-info h1 {
+                font-size: 2em;
+            }
+
+            .section {
+                padding: 20px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .section:hover {
+                transform: none;
+            }
+
+            .header {
+                box-shadow: none;
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section {
+            animation: slideIn 0.6s ease forwards;
+        }
+
+        .section:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .section:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .section:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="profile-section">
+                <img src="https://via.placeholder.com/150" alt="تصویر پروفایل" class="profile-img">
+                <div class="profile-info">
+                    <h1>نام و نام خانوادگی</h1>
+                    <p class="job-title">عنوان شغلی / تخصص</p>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span class="icon">📧</span>
+                            <span>email@example.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="icon">📱</span>
+                            <span>۰۹۱۲۳۴۵۶۷۸۹</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="icon">📍</span>
+                            <span>تهران، ایران</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="icon">🔗</span>
+                            <span>linkedin.com/in/yourname</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- About Section -->
+            <section class="section">
+                <h2>درباره من</h2>
+                <p class="about-text">
+                    در این قسمت می‌توانید خلاصه‌ای از تجربیات، مهارت‌ها و اهداف حرفه‌ای خود را بنویسید. سعی کنید این متن را به گونه‌ای بنویسید که نشان‌دهنده شخصیت حرفه‌ای شما باشد و توجه کارفرما را جلب کند. حدود ۳ تا ۵ خط کافی است.
+                </p>
+            </section>
+
+            <!-- Skills Section -->
+            <section class="section">
+                <h2>مهارت‌ها</h2>
+                <div class="skills-container">
+                    <div class="skill-item">
+                        <div class="skill-name">
+                            <span>JavaScript / React</span>
+                            <span>90%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 90%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name">
+                            <span>HTML / CSS</span>
+                            <span>95%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 95%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name">
+                            <span>Node.js</span>
+                            <span>85%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name">
+                            <span>Python</span>
+                            <span>80%</span>
+                        </div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 80%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Experience Section -->
+            <section class="section">
+                <h2>سوابق شغلی</h2>
+                <div class="experience-item">
+                    <div class="experience-header">
+                        <span class="company-name">نام شرکت</span>
+                        <span class="experience-date">فروردین ۱۴۰۰ - اکنون</span>
+                    </div>
+                    <p class="experience-role">عنوان شغلی</p>
+                    <p class="experience-description">
+                        توضیحات مختصری از وظایف و دستاوردهای شما در این سمت. سعی کنید از افعال قوی استفاده کنید و دستاوردهای قابل اندازه‌گیری را ذکر کنید.
+                    </p>
+                </div>
+                <div class="experience-item">
+                    <div class="experience-header">
+                        <span class="company-name">نام شرکت قبلی</span>
+                        <span class="experience-date">مهر ۱۳۹۸ - اسفند ۱۳۹۹</span>
+                    </div>
+                    <p class="experience-role">عنوان شغلی</p>
+                    <p class="experience-description">
+                        شرح مختصر فعالیت‌ها و مسئولیت‌های شما در این موقعیت شغلی.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Education Section -->
+            <section class="section">
+                <h2>تحصیلات</h2>
+                <div class="education-item">
+                    <p class="degree">کارشناسی ارشد مهندسی نرم‌افزار</p>
+                    <p class="university">دانشگاه تهران - ۱۳۹۸ تا ۱۴۰۰</p>
+                </div>
+                <div class="education-item">
+                    <p class="degree">کارشناسی مهندسی کامپیوتر</p>
+                    <p class="university">دانشگاه صنعتی شریف - ۱۳۹۴ تا ۱۳۹۸</p>
+                </div>
+            </section>
+
+            <!-- Languages Section -->
+            <section class="section">
+                <h2>زبان‌ها</h2>
+                <div class="language-item">
+                    <span>فارسی</span>
+                    <span class="language-level">زبان مادری</span>
+                </div>
+                <div class="language-item">
+                    <span>انگلیسی</span>
+                    <span class="language-level">پیشرفته</span>
+                </div>
+                <div class="language-item">
+                    <span>آلمانی</span>
+                    <span class="language-level">متوسط</span>
+                </div>
+            </section>
+
+            <!-- Additional Sections -->
+            <section class="section">
+                <h2>گواهینامه‌ها و دوره‌ها</h2>
+                <ul style="list-style: none; padding-right: 0;">
+                    <li style="padding: 8px 0;">🏆 گواهینامه React Advanced - Udemy (۱۴۰۲)</li>
+                    <li style="padding: 8px 0;">🏆 دوره Machine Learning - Coursera (۱۴۰۱)</li>
+                    <li style="padding: 8px 0;">🏆 مدرک PMP - PMI (۱۴۰۰)</li>
+                </ul>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>طراحی شده با ❤️ | آماده چاپ و ارسال آنلاین</p>
+        </footer>
+    </div>
+
+    <script>
+        // Animate skill bars on page load
+        window.addEventListener('load', function() {
+            const skillBars = document.querySelectorAll('.skill-progress');
+            skillBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 100);
+            });
+        });
+
+        // Smooth scroll for navigation (if you add navigation later)
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
