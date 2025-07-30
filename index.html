@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>رزومه - نام شما</title>
+    <title>Amir Salahshur - Full Stack Developer & DevOps Engineer</title>
     <style>
         * {
             margin: 0;
@@ -12,308 +12,544 @@
         }
 
         :root {
-            --primary-color: #2563eb;
-            --secondary-color: #1e40af;
-            --text-color: #1f2937;
-            --light-gray: #f3f4f6;
-            --border-color: #e5e7eb;
+            --bg-dark: #0a0e27;
+            --bg-secondary: #1a1f3a;
+            --text-primary: #e4e4e7;
+            --text-secondary: #94a3b8;
+            --accent-green: #10b981;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-orange: #f59e0b;
+            --border-color: #2d3748;
+            --code-bg: #1e293b;
         }
 
         body {
-            font-family: 'Vazir', 'Tahoma', sans-serif;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
             line-height: 1.6;
-            color: var(--text-color);
-            background-color: #f9fafb;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Header Section */
-        .header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 60px 40px;
-            border-radius: 20px;
-            margin-bottom: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        /* Terminal Style Header */
+        .terminal-header {
+            background: linear-gradient(135deg, #1a1f3a 0%, #0f172a 100%);
+            border-bottom: 2px solid var(--accent-green);
             position: relative;
             overflow: hidden;
         }
 
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-        }
-
-        .profile-section {
+        .terminal-bar {
+            background: #2d3748;
+            padding: 10px 20px;
             display: flex;
             align-items: center;
-            gap: 30px;
-            position: relative;
-            z-index: 1;
+            gap: 10px;
         }
 
-        .profile-img {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 5px solid rgba(255,255,255,0.3);
-            object-fit: cover;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .profile-info h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .profile-info .job-title {
-            font-size: 1.3em;
-            opacity: 0.9;
-            margin-bottom: 20px;
-        }
-
-        .contact-info {
+        .terminal-dots {
             display: flex;
-            gap: 20px;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #f59e0b; }
+        .dot-green { background: #10b981; }
+
+        .terminal-title {
+            flex: 1;
+            text-align: center;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 60px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-text .subtitle {
+            font-size: 1.5em;
+            color: var(--accent-green);
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .typing-effect {
+            font-size: 1.1em;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .typing-effect::after {
+            content: '_';
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Code Block Style */
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            font-size: 0.9em;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: 'profile.json';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: var(--code-bg);
+            padding: 0 10px;
+            color: var(--text-secondary);
+            font-size: 0.8em;
+        }
+
+        .code-line {
+            margin: 4px 0;
+        }
+
+        .code-key { color: #f472b6; }
+        .code-string { color: #10b981; }
+        .code-number { color: #f59e0b; }
+        .code-boolean { color: #3b82f6; }
+
+        /* Skills Grid */
+        .skills-section {
+            background: var(--bg-secondary);
+            padding: 80px 0;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-size: 2.5em;
+            margin-bottom: 50px;
+            text-align: center;
+            position: relative;
+            color: var(--text-primary);
+        }
+
+        .section-title::before {
+            content: '<';
+            color: var(--accent-green);
+            margin-right: 10px;
+        }
+
+        .section-title::after {
+            content: '/>';
+            color: var(--accent-green);
+            margin-left: 10px;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .skill-category {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-category::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .skill-category:hover::before {
+            transform: translateX(0);
+        }
+
+        .skill-category:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+        }
+
+        .skill-category h3 {
+            color: var(--accent-blue);
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .skill-icon {
+            font-size: 1.5em;
+        }
+
+        .skill-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .skill-tag {
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            transition: all 0.2s ease;
+        }
+
+        .skill-tag:hover {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            transform: scale(1.05);
+        }
+
+        /* Experience Timeline */
+        .experience-section {
+            padding: 80px 0;
+            background: var(--bg-dark);
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            background: var(--border-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 40px 0;
+            width: 50%;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .timeline-item:nth-child(odd) {
+            text-align: right;
+            padding-right: 60px;
+        }
+
+        .timeline-item:nth-child(even) {
+            left: 50%;
+            padding-left: 60px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            top: 50px;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-dot {
+            right: -10px;
+        }
+
+        .timeline-item:nth-child(even) .timeline-dot {
+            left: -10px;
+        }
+
+        .timeline-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 25px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .timeline-content h3 {
+            color: var(--accent-blue);
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .timeline-content .company {
+            color: var(--accent-green);
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .timeline-content .date {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .timeline-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .timeline-content li {
+            padding: 5px 0;
+            position: relative;
+            padding-left: 20px;
+            color: var(--text-secondary);
+            font-size: 0.95em;
+        }
+
+        .timeline-content li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--accent-green);
+        }
+
+        /* Projects Section */
+        .projects-section {
+            background: var(--bg-secondary);
+            padding: 80px 0;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .project-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+        }
+
+        .project-header {
+            background: var(--code-bg);
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .project-header h3 {
+            color: var(--accent-purple);
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .project-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tech-badge {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-blue);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .project-body {
+            padding: 20px;
+        }
+
+        .project-description {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            line-height: 1.8;
+        }
+
+        .project-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .project-link {
+            color: var(--accent-green);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9em;
+            transition: color 0.2s ease;
+        }
+
+        .project-link:hover {
+            color: var(--text-primary);
+        }
+
+        /* Contact Section */
+        .contact-section {
+            padding: 80px 0;
+            background: var(--bg-dark);
+            text-align: center;
+        }
+
+        .contact-grid {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
             flex-wrap: wrap;
         }
 
         .contact-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.2);
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-size: 0.9em;
+            gap: 15px;
+            background: var(--bg-secondary);
+            padding: 20px 30px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
         }
 
-        /* Main Content */
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 40px;
+        .contact-item:hover {
+            border-color: var(--accent-green);
+            transform: translateY(-3px);
         }
 
-        .section {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease;
-        }
-
-        .section:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .section h2 {
-            color: var(--primary-color);
-            margin-bottom: 20px;
+        .contact-icon {
             font-size: 1.5em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            color: var(--accent-green);
         }
 
-        .section h2::before {
-            content: '';
-            width: 4px;
-            height: 24px;
-            background: var(--primary-color);
-            border-radius: 2px;
+        .contact-text {
+            text-align: left;
         }
 
-        /* About Section */
-        .about-text {
-            line-height: 1.8;
-            text-align: justify;
+        .contact-label {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            display: block;
         }
 
-        /* Skills Section */
-        .skill-item {
+        .contact-value {
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .contact-value:hover {
+            color: var(--accent-blue);
+        }
+
+        /* Certifications */
+        .cert-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .cert-card {
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .cert-card:hover {
+            border-color: var(--accent-orange);
+            transform: scale(1.05);
+        }
+
+        .cert-icon {
+            font-size: 2.5em;
             margin-bottom: 15px;
+            color: var(--accent-orange);
         }
 
-        .skill-name {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        .skill-bar {
-            height: 8px;
-            background: var(--light-gray);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .skill-progress {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            border-radius: 10px;
-            transition: width 2s ease;
-        }
-
-        /* Experience Section */
-        .experience-item {
-            padding: 20px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .experience-item:last-child {
-            border: none;
-            padding-bottom: 0;
-        }
-
-        .experience-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 10px;
-        }
-
-        .company-name {
+        .cert-name {
+            color: var(--text-primary);
             font-weight: 600;
-            color: var(--primary-color);
-            font-size: 1.1em;
-        }
-
-        .experience-date {
-            color: #6b7280;
-            font-size: 0.9em;
-        }
-
-        .experience-role {
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-
-        .experience-description {
-            color: #4b5563;
-            line-height: 1.7;
-        }
-
-        /* Education Section */
-        .education-item {
-            padding: 15px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .education-item:last-child {
-            border: none;
-            padding-bottom: 0;
-        }
-
-        .degree {
-            font-weight: 600;
-            color: var(--primary-color);
             margin-bottom: 5px;
         }
 
-        .university {
-            color: #6b7280;
-            font-size: 0.95em;
-        }
-
-        /* Languages Section */
-        .language-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .language-item:last-child {
-            border: none;
-        }
-
-        .language-level {
-            background: var(--light-gray);
-            padding: 4px 12px;
-            border-radius: 15px;
+        .cert-issuer {
+            color: var(--text-secondary);
             font-size: 0.9em;
-            color: var(--primary-color);
-            font-weight: 500;
         }
 
         /* Footer */
         .footer {
+            background: var(--bg-secondary);
+            padding: 30px 0;
             text-align: center;
-            padding: 30px;
-            color: #6b7280;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-text {
+            color: var(--text-secondary);
             font-size: 0.9em;
         }
 
-        /* Icons (Using Unicode) */
-        .icon {
-            font-size: 1.2em;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .profile-section {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .contact-info {
-                justify-content: center;
-            }
-
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .header {
-                padding: 40px 20px;
-            }
-
-            .profile-info h1 {
-                font-size: 2em;
-            }
-
-            .section {
-                padding: 20px;
-            }
-        }
-
-        /* Print Styles */
-        @media print {
-            body {
-                background: white;
-            }
-
-            .section:hover {
-                transform: none;
-            }
-
-            .header {
-                box-shadow: none;
-                margin-bottom: 20px;
-            }
-        }
-
         /* Animations */
-        @keyframes slideIn {
+        @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
@@ -321,201 +557,676 @@
             }
         }
 
-        .section {
-            animation: slideIn 0.6s ease forwards;
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .hero-text h1 {
+                font-size: 2.5em;
+            }
+
+            .timeline::before {
+                left: 30px;
+            }
+
+            .timeline-item {
+                width: 100%;
+                padding-left: 80px !important;
+                text-align: left !important;
+            }
+
+            .timeline-item:nth-child(even) {
+                left: 0;
+            }
+
+            .timeline-dot {
+                left: 20px !important;
+            }
+
+            .skills-grid,
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-grid {
+                flex-direction: column;
+                align-items: center;
+            }
         }
 
-        .section:nth-child(2) {
-            animation-delay: 0.1s;
+        /* Matrix Background Effect */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            z-index: -1;
         }
 
-        .section:nth-child(3) {
-            animation-delay: 0.2s;
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
         }
 
-        .section:nth-child(4) {
-            animation-delay: 0.3s;
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-green);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-blue);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="profile-section">
-                <img src="https://via.placeholder.com/150" alt="تصویر پروفایل" class="profile-img">
-                <div class="profile-info">
-                    <h1>نام و نام خانوادگی</h1>
-                    <p class="job-title">عنوان شغلی / تخصص</p>
-                    <div class="contact-info">
-                        <div class="contact-item">
-                            <span class="icon">📧</span>
-                            <span>email@example.com</span>
+    <!-- Matrix Background -->
+    <canvas class="matrix-bg" id="matrix"></canvas>
+
+    <!-- Terminal Header -->
+    <header class="terminal-header">
+        <div class="terminal-bar">
+            <div class="terminal-dots">
+                <div class="dot dot-red"></div>
+                <div class="dot dot-yellow"></div>
+                <div class="dot dot-green"></div>
+            </div>
+            <div class="terminal-title">amir@devops:~$</div>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>Amir Salahshur</h1>
+                    <p class="subtitle">Full Stack Developer & DevOps Engineer</p>
+                    <p class="typing-effect">Building scalable infrastructure and elegant code solutions...</p>
+                    
+                    <div class="code-block">
+                        <div class="code-line">
+                            <span class="code-key">const</span> developer = {
                         </div>
-                        <div class="contact-item">
-                            <span class="icon">📱</span>
-                            <span>۰۹۱۲۳۴۵۶۷۸۹</span>
+                        <div class="code-line" style="padding-left: 20px;">
+                            <span class="code-string">"name"</span>: <span class="code-string">"Amir Salahshur"</span>,
                         </div>
-                        <div class="contact-item">
-                            <span class="icon">📍</span>
-                            <span>تهران، ایران</span>
+                        <div class="code-line" style="padding-left: 20px;">
+                            <span class="code-string">"role"</span>: <span class="code-string">"DevOps Engineer"</span>,
                         </div>
-                        <div class="contact-item">
-                            <span class="icon">🔗</span>
-                            <span>linkedin.com/in/yourname</span>
+                        <div class="code-line" style="padding-left: 20px;">
+                            <span class="code-string">"experience"</span>: <span class="code-number">5</span>,
+                        </div>
+                        <div class="code-line" style="padding-left: 20px;">
+                            <span class="code-string">"passionate_about"</span>: [
+                        </div>
+                        <div class="code-line" style="padding-left: 40px;">
+                            <span class="code-string">"Cloud Architecture"</span>,
+                        </div>
+                        <div class="code-line" style="padding-left: 40px;">
+                            <span class="code-string">"Automation"</span>,
+                        </div>
+                        <div class="code-line" style="padding-left: 40px;">
+                            <span class="code-string">"Clean Code"</span>
+                        </div>
+                        <div class="code-line" style="padding-left: 20px;">
+                            ],
+                        </div>
+                        <div class="code-line" style="padding-left: 20px;">
+                            <span class="code-string">"available"</span>: <span class="code-boolean">true</span>
+                        </div>
+                        <div class="code-line">}</div>
+                    </div>
+                </div>
+
+                <div class="hero-visual">
+                    <!-- ASCII Art or SVG illustration can go here -->
+                    <pre style="color: var(--accent-green); font-size: 0.8em; line-height: 1.2;">
+    ╔══════════════════════════╗
+    ║   🚀 DevOps Pipeline     ║
+    ╠══════════════════════════╣
+    ║  Code → Build → Test     ║
+    ║    ↓      ↓      ↓       ║
+    ║  Deploy → Monitor → Fix  ║
+    ║    ↻      ↻      ↻       ║
+    ╚══════════════════════════╝
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Skills Section -->
+    <section class="skills-section">
+        <div class="container">
+            <h2 class="section-title">Technical Skills</h2>
+            
+            <div class="skills-grid">
+                <!-- DevOps & Cloud -->
+                <div class="skill-category">
+                    <h3><span class="skill-icon">☁️</span> DevOps & Cloud</h3>
+                    <div class="skill-list">
+                        <span class="skill-tag">Docker</span>
+                        <span class="skill-tag">Kubernetes</span>
+                        <span class="skill-tag">AWS</span>
+                        <span class="skill-tag">Azure</span>
+                        <span class="skill-tag">Terraform</span>
+                        <span class="skill-tag">Ansible</span>
+                        <span class="skill-tag">Jenkins</span>
+                        <span class="skill-tag">GitLab CI/CD</span>
+                        <span class="skill-tag">ArgoCD</span>
+                        <span class="skill-tag">Helm</span>
+                    </div>
+                </div>
+
+                <!-- Backend Development -->
+                <div class="skill-category">
+                    <h3><span class="skill-icon">⚙️</span> Backend Development</h3>
+                    <div class="skill-list">
+                        <span class="skill-tag">Python</span>
+                        <span class="skill-tag">Node.js</span>
+                        <span class="skill-tag">Go</span>
+                        <span class="skill-tag">Java</span>
+                        <span class="skill-tag">FastAPI</span>
+                        <span class="skill-tag">Express.js</span>
+                        <span class="skill-tag">Django</span>
+                        <span class="skill-tag">PostgreSQL</span>
+                        <span class="skill-tag">MongoDB</span>
+                        <span class="skill-tag">Redis</span>
+                    </div>
+                </div>
+
+                <!-- Frontend & Full Stack -->
+                <div class="skill-category">
+                    <h3><span class="skill-icon">🎨</span> Frontend Development</h3>
+                    <div class="skill-list">
+                        <span class="skill-tag">React</span>
+                        <span class="skill-tag">Vue.js</span>
+                        <span class="skill-tag">TypeScript</span>
+                        <span class="skill-tag">Next.js</span>
+                        <span class="skill-tag">HTML5</span>
+                        <span class="skill-tag">CSS3</span>
+                        <span class="skill-tag">Tailwind CSS</span>
+                        <span class="skill-tag">GraphQL</span>
+                        <span class="skill-tag">REST APIs</span>
+                    </div>
+                </div>
+
+                <!-- Networking & Security -->
+                <div class="skill-category">
+                    <h3><span class="skill-icon">🔒</span> Networking & Security</h3>
+                    <div class="skill-list">
+                        <span class="skill-tag">TCP/IP</span>
+                        <span class="skill-tag">DNS</span>
+                        <span class="skill-tag">Load Balancing</span>
+                        <span class="skill-tag">Nginx</span>
+                        <span class="skill-tag">HAProxy</span>
+                        <span class="skill-tag">VPN</span>
+                        <span class="skill-tag">SSL/TLS</span>
+                        <span class="skill-tag">OAuth 2.0</span>
+                        <span class="skill-tag">Security Scanning</span>
+                    </div>
+                </div>
+
+                <!-- Monitoring & Logging -->
+                <div class="skill-category">
+                    <h3><span class="skill-icon">📊</span> Monitoring & Logging</h3>
+                    <div class="skill-list">
+                        <span class="skill-tag">Prometheus</span>
+                        <span class="skill-tag">Grafana</span>
+                        <span class="skill-tag">ELK Stack</span>
+                        <span class="skill-tag">Datadog</span>
+                        <span class="skill-tag">New Relic</span>
+                        <span class="skill-tag">CloudWatch</span>
+                        <span class="skill-tag">Splunk</span>
+                        <span class="skill-tag">Jaeger</span>
+                    </div>
+                </div>
+
+                <!-- Tools & Practices -->
+                <div class="skill-category">
+                    <h3><span class="skill-icon">🛠️</span> Tools & Practices</h3>
+                    <div class="skill-list">
+                        <span class="skill-tag">Git</span>
+                        <span class="skill-tag">Linux</span>
+                        <span class="skill-tag">Bash Scripting</span>
+                        <span class="skill-tag">Agile/Scrum</span>
+                        <span class="skill-tag">TDD</span>
+                        <span class="skill-tag">Microservices</span>
+                        <span class="skill-tag">REST</span>
+                        <span class="skill-tag">gRPC</span>
+                        <span class="skill-tag">Message Queues</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Timeline -->
+    <section class="experience-section">
+        <div class="container">
+            <h2 class="section-title">Professional Experience</h2>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h3>Senior DevOps Engineer</h3>
+                        <p class="company">Tech Solutions Inc.</p>
+                        <p class="date">2022 - Present</p>
+                        <ul>
+                            <li>Architected and implemented Kubernetes clusters serving 10M+ daily requests</li>
+                            <li>Reduced deployment time by 75% through CI/CD pipeline optimization</li>
+                            <li>Implemented Infrastructure as Code using Terraform, managing 200+ resources</li>
+                            <li>Built comprehensive monitoring solution with Prometheus and Grafana</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h3>Full Stack Developer</h3>
+                        <p class="company">Digital Innovations Co.</p>
+                        <p class="date">2020 - 2022</p>
+                        <ul>
+                            <li>Developed microservices architecture using Node.js and Python</li>
+                            <li>Built responsive web applications with React and Vue.js</li>
+                            <li>Implemented automated testing, achieving 90% code coverage</li>
+                            <li>Optimized database queries, improving performance by 60%</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h3>Network Administrator</h3>
+                        <p class="company">Network Systems Ltd.</p>
+                        <p class="date">2018 - 2020</p>
+                        <ul>
+                            <li>Managed enterprise network infrastructure for 500+ users</li>
+                            <li>Configured and maintained Cisco routers and switches</li>
+                            <li>Implemented network security policies and VPN solutions</li>
+                            <li>Automated network monitoring using Python scripts</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="projects-section">
+        <div class="container">
+            <h2 class="section-title">Featured Projects</h2>
+            
+            <div class="projects-grid">
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3>🚀 Cloud-Native E-Commerce Platform</h3>
+                        <div class="project-tech">
+                            <span class="tech-badge">Kubernetes</span>
+                            <span class="tech-badge">React</span>
+                            <span class="tech-badge">Node.js</span>
+                            <span class="tech-badge">MongoDB</span>
+                        </div>
+                    </div>
+                    <div class="project-body">
+                        <p class="project-description">
+                            Designed and deployed a scalable e-commerce platform handling 100k+ daily users. 
+                            Implemented microservices architecture with auto-scaling and zero-downtime deployments.
+                        </p>
+                        <div class="project-links">
+                            <a href="#" class="project-link">
+                                <span>🔗</span> GitHub
+                            </a>
+                            <a href="#" class="project-link">
+                                <span>🌐</span> Live Demo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3>📊 Real-Time Monitoring Dashboard</h3>
+                        <div class="project-tech">
+                            <span class="tech-badge">Prometheus</span>
+                            <span class="tech-badge">Grafana</span>
+                            <span class="tech-badge">Python</span>
+                            <span class="tech-badge">Docker</span>
+                        </div>
+                    </div>
+                    <div class="project-body">
+                        <p class="project-description">
+                            Built comprehensive monitoring solution for distributed systems. Features real-time metrics, 
+                            alerting, and automated incident response with 99.9% uptime achievement.
+                        </p>
+                        <div class="project-links">
+                            <a href="#" class="project-link">
+                                <span>🔗</span> GitHub
+                            </a>
+                            <a href="#" class="project-link">
+                                <span>📄</span> Documentation
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3>🔧 Infrastructure Automation Tool</h3>
+                        <div class="project-tech">
+                            <span class="tech-badge">Go</span>
+                            <span class="tech-badge">Terraform</span>
+                            <span class="tech-badge">AWS</span>
+                            <span class="tech-badge">Ansible</span>
+                        </div>
+                    </div>
+                    <div class="project-body">
+                        <p class="project-description">
+                            Developed CLI tool for automated infrastructure provisioning. Reduced setup time from days 
+                            to minutes with one-command deployments across multiple cloud providers.
+                        </p>
+                        <div class="project-links">
+                            <a href="#" class="project-link">
+                                <span>🔗</span> GitHub
+                            </a>
+                            <a href="#" class="project-link">
+                                <span>📦</span> Package
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3>🔒 Security Scanner API</h3>
+                        <div class="project-tech">
+                            <span class="tech-badge">Python</span>
+                            <span class="tech-badge">FastAPI</span>
+                            <span class="tech-badge">Docker</span>
+                            <span class="tech-badge">Redis</span>
+                        </div>
+                    </div>
+                    <div class="project-body">
+                        <p class="project-description">
+                            Created REST API for automated security vulnerability scanning. Integrates with CI/CD 
+                            pipelines to ensure code security before deployment.
+                        </p>
+                        <div class="project-links">
+                            <a href="#" class="project-link">
+                                <span>🔗</span> GitHub
+                            </a>
+                            <a href="#" class="project-link">
+                                <span>📚</span> API Docs
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3>🌐 Network Automation Framework</h3>
+                        <div class="project-tech">
+                            <span class="tech-badge">Python</span>
+                            <span class="tech-badge">Netmiko</span>
+                            <span class="tech-badge">YAML</span>
+                            <span class="tech-badge">REST API</span>
+                        </div>
+                    </div>
+                    <div class="project-body">
+                        <p class="project-description">
+                            Built framework for automating network device configuration and management. Supports 
+                            multiple vendors with template-based configuration deployment.
+                        </p>
+                        <div class="project-links">
+                            <a href="#" class="project-link">
+                                <span>🔗</span> GitHub
+                            </a>
+                            <a href="#" class="project-link">
+                                <span>📹</span> Demo Video
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3>📦 Container Orchestration Platform</h3>
+                        <div class="project-tech">
+                            <span class="tech-badge">Kubernetes</span>
+                            <span class="tech-badge">Helm</span>
+                            <span class="tech-badge">ArgoCD</span>
+                            <span class="tech-badge">GitOps</span>
+                        </div>
+                    </div>
+                    <div class="project-body">
+                        <p class="project-description">
+                            Implemented GitOps-based deployment platform for managing 50+ microservices. Features 
+                            automated rollbacks, canary deployments, and multi-environment support.
+                        </p>
+                        <div class="project-links">
+                            <a href="#" class="project-link">
+                                <span>🔗</span> GitHub
+                            </a>
+                            <a href="#" class="project-link">
+                                <span>📊</span> Case Study
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
-        </header>
+        </div>
+    </section>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- About Section -->
-            <section class="section">
-                <h2>درباره من</h2>
-                <p class="about-text">
-                    در این قسمت می‌توانید خلاصه‌ای از تجربیات، مهارت‌ها و اهداف حرفه‌ای خود را بنویسید. سعی کنید این متن را به گونه‌ای بنویسید که نشان‌دهنده شخصیت حرفه‌ای شما باشد و توجه کارفرما را جلب کند. حدود ۳ تا ۵ خط کافی است.
-                </p>
-            </section>
+    <!-- Certifications Section -->
+    <section class="skills-section">
+        <div class="container">
+            <h2 class="section-title">Certifications</h2>
+            
+            <div class="cert-grid">
+                <div class="cert-card">
+                    <div class="cert-icon">🏆</div>
+                    <div class="cert-name">AWS Solutions Architect</div>
+                    <div class="cert-issuer">Amazon Web Services</div>
+                </div>
+                
+                <div class="cert-card">
+                    <div class="cert-icon">🎯</div>
+                    <div class="cert-name">Certified Kubernetes Administrator</div>
+                    <div class="cert-issuer">CNCF</div>
+                </div>
+                
+                <div class="cert-card">
+                    <div class="cert-icon">🔧</div>
+                    <div class="cert-name">HashiCorp Terraform Associate</div>
+                    <div class="cert-issuer">HashiCorp</div>
+                </div>
+                
+                <div class="cert-card">
+                    <div class="cert-icon">🌐</div>
+                    <div class="cert-name">CCNA</div>
+                    <div class="cert-issuer">Cisco</div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-            <!-- Skills Section -->
-            <section class="section">
-                <h2>مهارت‌ها</h2>
-                <div class="skills-container">
-                    <div class="skill-item">
-                        <div class="skill-name">
-                            <span>JavaScript / React</span>
-                            <span>90%</span>
-                        </div>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 90%"></div>
-                        </div>
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <div class="container">
+            <h2 class="section-title">Get In Touch</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 40px;">
+                Let's discuss how I can help build your next infrastructure or development project
+            </p>
+            
+            <div class="contact-grid">
+                <div class="contact-item">
+                    <span class="contact-icon">📧</span>
+                    <div class="contact-text">
+                        <span class="contact-label">Email</span>
+                        <a href="mailto:amir@example.com" class="contact-value">amir@example.com</a>
                     </div>
-                    <div class="skill-item">
-                        <div class="skill-name">
-                            <span>HTML / CSS</span>
-                            <span>95%</span>
-                        </div>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 95%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <div class="skill-name">
-                            <span>Node.js</span>
-                            <span>85%</span>
-                        </div>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 85%"></div>
-                        </div>
-                    </div>
-                    <div class="skill-item">
-                        <div class="skill-name">
-                            <span>Python</span>
-                            <span>80%</span>
-                        </div>
-                        <div class="skill-bar">
-                            <div class="skill-progress" style="width: 80%"></div>
-                        </div>
+                </div>
+                
+                <div class="contact-item">
+                    <span class="contact-icon">💼</span>
+                    <div class="contact-text">
+                        <span class="contact-label">LinkedIn</span>
+                        <a href="#" class="contact-value">linkedin.com/in/amirsalahshur</a>
                     </div>
                 </div>
-            </section>
-
-            <!-- Experience Section -->
-            <section class="section">
-                <h2>سوابق شغلی</h2>
-                <div class="experience-item">
-                    <div class="experience-header">
-                        <span class="company-name">نام شرکت</span>
-                        <span class="experience-date">فروردین ۱۴۰۰ - اکنون</span>
+                
+                <div class="contact-item">
+                    <span class="contact-icon">🐙</span>
+                    <div class="contact-text">
+                        <span class="contact-label">GitHub</span>
+                        <a href="#" class="contact-value">github.com/amirsalahshur</a>
                     </div>
-                    <p class="experience-role">عنوان شغلی</p>
-                    <p class="experience-description">
-                        توضیحات مختصری از وظایف و دستاوردهای شما در این سمت. سعی کنید از افعال قوی استفاده کنید و دستاوردهای قابل اندازه‌گیری را ذکر کنید.
-                    </p>
                 </div>
-                <div class="experience-item">
-                    <div class="experience-header">
-                        <span class="company-name">نام شرکت قبلی</span>
-                        <span class="experience-date">مهر ۱۳۹۸ - اسفند ۱۳۹۹</span>
-                    </div>
-                    <p class="experience-role">عنوان شغلی</p>
-                    <p class="experience-description">
-                        شرح مختصر فعالیت‌ها و مسئولیت‌های شما در این موقعیت شغلی.
-                    </p>
-                </div>
-            </section>
+            </div>
+        </div>
+    </section>
 
-            <!-- Education Section -->
-            <section class="section">
-                <h2>تحصیلات</h2>
-                <div class="education-item">
-                    <p class="degree">کارشناسی ارشد مهندسی نرم‌افزار</p>
-                    <p class="university">دانشگاه تهران - ۱۳۹۸ تا ۱۴۰۰</p>
-                </div>
-                <div class="education-item">
-                    <p class="degree">کارشناسی مهندسی کامپیوتر</p>
-                    <p class="university">دانشگاه صنعتی شریف - ۱۳۹۴ تا ۱۳۹۸</p>
-                </div>
-            </section>
-
-            <!-- Languages Section -->
-            <section class="section">
-                <h2>زبان‌ها</h2>
-                <div class="language-item">
-                    <span>فارسی</span>
-                    <span class="language-level">زبان مادری</span>
-                </div>
-                <div class="language-item">
-                    <span>انگلیسی</span>
-                    <span class="language-level">پیشرفته</span>
-                </div>
-                <div class="language-item">
-                    <span>آلمانی</span>
-                    <span class="language-level">متوسط</span>
-                </div>
-            </section>
-
-            <!-- Additional Sections -->
-            <section class="section">
-                <h2>گواهینامه‌ها و دوره‌ها</h2>
-                <ul style="list-style: none; padding-right: 0;">
-                    <li style="padding: 8px 0;">🏆 گواهینامه React Advanced - Udemy (۱۴۰۲)</li>
-                    <li style="padding: 8px 0;">🏆 دوره Machine Learning - Coursera (۱۴۰۱)</li>
-                    <li style="padding: 8px 0;">🏆 مدرک PMP - PMI (۱۴۰۰)</li>
-                </ul>
-            </section>
-        </main>
-
-        <!-- Footer -->
-        <footer class="footer">
-            <p>طراحی شده با ❤️ | آماده چاپ و ارسال آنلاین</p>
-        </footer>
-    </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                &lt;/&gt; with ❤️ by Amir Salahshur | Built with clean code and coffee ☕
+            </p>
+        </div>
+    </footer>
 
     <script>
-        // Animate skill bars on page load
-        window.addEventListener('load', function() {
-            const skillBars = document.querySelectorAll('.skill-progress');
-            skillBars.forEach(bar => {
-                const width = bar.style.width;
-                bar.style.width = '0';
-                setTimeout(() => {
-                    bar.style.width = width;
-                }, 100);
-            });
+        // Matrix Rain Effect
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+        const matrixArray = matrix.split("");
+
+        const fontSize = 10;
+        const columns = canvas.width / fontSize;
+
+        const drops = [];
+        for(let x = 0; x < columns; x++) {
+            drops[x] = 1;
+        }
+
+        function draw() {
+            ctx.fillStyle = 'rgba(10, 14, 39, 0.04)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#10b981';
+            ctx.font = fontSize + 'px monospace';
+
+            for(let i = 0; i < drops.length; i++) {
+                const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(draw, 35);
+
+        // Resize canvas on window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         });
 
-        // Smooth scroll for navigation (if you add navigation later)
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections
+        document.querySelectorAll('section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(30px)';
+            section.style.transition = 'all 0.6s ease';
+            observer.observe(section);
+        });
+
+        // Smooth scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
+                const target = document.querySelector(this.getAttribute('href'));
+                if(target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
             });
         });
+
+        // Terminal typing effect
+        const typingElement = document.querySelector('.typing-effect');
+        const texts = [
+            'Building scalable infrastructure and elegant code solutions...',
+            'Automating everything that can be automated...',
+            'Turning coffee into cloud infrastructure...',
+            'Deploying happiness, one container at a time...'
+        ];
+        let textIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+
+        function typeWriter() {
+            const currentText = texts[textIndex];
+            
+            if (isDeleting) {
+                typingElement.textContent = currentText.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typingElement.textContent = currentText.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let typeSpeed = isDeleting ? 50 : 100;
+
+            if (!isDeleting && charIndex === currentText.length) {
+                typeSpeed = 2000;
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                textIndex = (textIndex + 1) % texts.length;
+                typeSpeed = 500;
+            }
+
+            setTimeout(typeWriter, typeSpeed);
+        }
+
+        // Start typing effect
+        typeWriter();
     </script>
 </body>
 </html>
