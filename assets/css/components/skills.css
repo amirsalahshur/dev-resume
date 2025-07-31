@@ -1,0 +1,119 @@
+/* Skills Section */
+
+.skills-section {
+    background: var(--bg-secondary);
+    padding: var(--spacing-xl) 0;
+    position: relative;
+}
+
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-sm);
+}
+
+.skill-category {
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: var(--spacing-md);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.skill-category::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+.skill-category:hover::before {
+    transform: translateX(0);
+}
+
+.skill-category:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+}
+
+.skill-category h3 {
+    color: var(--accent-blue);
+    margin-bottom: var(--spacing-sm);
+    font-size: var(--fs-heading);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.skill-icon {
+    font-size: 1.5em;
+}
+
+.skill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+}
+
+.skill-tag {
+    background: var(--code-bg);
+    border: 1px solid var(--border-color);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: var(--fs-small);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.skill-tag:hover {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+    transform: scale(1.05);
+}
+
+/* Certifications */
+.cert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
+}
+
+.cert-card {
+    background: var(--code-bg);
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-md);
+    border-radius: 10px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.cert-card:hover {
+    border-color: var(--accent-orange);
+    transform: scale(1.05);
+}
+
+.cert-icon {
+    font-size: 2em;
+    margin-bottom: var(--spacing-sm);
+    color: var(--accent-orange);
+}
+
+.cert-name {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--fs-body);
+}
+
+.cert-issuer {
+    color: var(--text-secondary);
+    font-size: var(--fs-small);
+}

@@ -1,0 +1,14 @@
+/* Footer */
+
+.footer {
+    background: var(--bg-secondary);
+    padding: var(--spacing-md) 0;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+}
+
+.footer-text {
+    color: var(--text-secondary);
+    font-size: var(--fs-small);
+    padding: 0 var(--spacing-sm);
+}
