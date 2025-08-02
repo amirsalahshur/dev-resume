@@ -140,13 +140,30 @@ create_directories() {
 install_service() {
     info "Installing systemd service..."
     
-    # Check if service file exists
-    if [[ ! -f "$SERVICE_FILE" ]]; then
-        error "Service file $SERVICE_FILE not found in current directory"
+    # Get the directory where this script is located
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+    SERVICE_PATH="$PROJECT_DIR/$SERVICE_FILE"
+    
+    # Check if service file exists in project directory
+    if [[ ! -f "$SERVICE_PATH" ]]; then
+        # Try current directory as fallback
+        if [[ ! -f "$SERVICE_FILE" ]]; then
+            error "Service file $SERVICE_FILE not found in $PROJECT_DIR or current directory"
+        else
+            SERVICE_PATH="$SERVICE_FILE"
+        fi
+    fi
+    
+    info "Using service file: $SERVICE_PATH"
+    
+    # Validate service file content
+    if ! grep -q "portfolio" "$SERVICE_PATH"; then
+        error "Service file appears to be invalid (missing portfolio reference)"
     fi
     
     # Copy service file
-    cp "$SERVICE_FILE" "/etc/systemd/system/"
+    cp "$SERVICE_PATH" "/etc/systemd/system/"
     chmod 644 "/etc/systemd/system/$SERVICE_FILE"
     
     # Reload systemd
@@ -288,33 +305,67 @@ setup_firewall() {
 # Verify installation
 verify_installation() {
     info "Verifying installation..."
+    local verification_failed=false
     
     # Check user exists
     if getent passwd "$SERVICE_USER" > /dev/null; then
-        success "User $SERVICE_USER exists"
+        success "✓ User $SERVICE_USER exists"
     else
-        error "User $SERVICE_USER not found"
+        error "✗ User $SERVICE_USER not found"
+        verification_failed=true
     fi
     
     # Check directories exist and have correct permissions
     if [[ -d "$APP_DIR" ]] && [[ "$(stat -c %U:%G "$APP_DIR")" == "$SERVICE_USER:$SERVICE_GROUP" ]]; then
-        success "Application directory configured correctly"
+        success "✓ Application directory configured correctly"
     else
-        error "Application directory not configured correctly"
+        error "✗ Application directory not configured correctly"
+        verification_failed=true
+    fi
+    
+    # Check service file exists in systemd
+    if [[ -f "/etc/systemd/system/$SERVICE_FILE" ]]; then
+        success "✓ Service file copied to systemd"
+    else
+        error "✗ Service file not found in /etc/systemd/system/"
+        verification_failed=true
     fi
     
     # Check service is installed
     if systemctl list-unit-files | grep -q "$SERVICE_NAME.service"; then
-        success "Systemd service installed"
+        success "✓ Systemd service installed"
     else
-        error "Systemd service not installed"
+        error "✗ Systemd service not installed"
+        verification_failed=true
     fi
     
     # Check service is enabled
-    if systemctl is-enabled "$SERVICE_NAME" > /dev/null; then
-        success "Service is enabled"
+    if systemctl is-enabled "$SERVICE_NAME" > /dev/null 2>&1; then
+        success "✓ Service is enabled"
     else
-        error "Service is not enabled"
+        error "✗ Service is not enabled"
+        verification_failed=true
+    fi
+    
+    # Check PM2 is installed
+    if command -v pm2 > /dev/null; then
+        success "✓ PM2 is installed"
+    else
+        error "✗ PM2 is not installed or not in PATH"
+        verification_failed=true
+    fi
+    
+    # Check ecosystem.config.js exists in project
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+    if [[ -f "$PROJECT_DIR/ecosystem.config.js" ]]; then
+        success "✓ ecosystem.config.js found"
+    else
+        warning "⚠ ecosystem.config.js not found in $PROJECT_DIR (required for PM2)"
+    fi
+    
+    if [[ "$verification_failed" == "true" ]]; then
+        error "Installation verification failed - see errors above"
     fi
     
     success "Installation verification completed"

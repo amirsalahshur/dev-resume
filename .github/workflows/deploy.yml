@@ -131,17 +131,28 @@ jobs:
   deploy-staging:
     runs-on: ubuntu-latest
     needs: [test-and-build, security-scan]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && vars.ENABLE_STAGING_DEPLOY == 'true'
     environment:
       name: staging
-      url: https://staging.your-domain.com
+      url: ${{ vars.STAGING_URL || 'https://staging.your-domain.com' }}
     
     steps:
+      - name: Check required secrets
+        run: |
+          if [[ -z "${{ secrets.STAGING_HOST }}" ]]; then
+            echo "::warning::STAGING_HOST secret not configured"
+            exit 1
+          fi
+          if [[ -z "${{ secrets.STAGING_SSH_KEY }}" ]]; then
+            echo "::warning::STAGING_SSH_KEY secret not configured"
+            exit 1
+          fi
+
       - name: Deploy to staging
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secrets.STAGING_USER }}
+          username: ${{ secrets.STAGING_USER || 'portfolio' }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           port: ${{ secrets.STAGING_PORT || 22 }}
           script: |
@@ -156,26 +167,41 @@ jobs:
 
       - name: Health check staging
         run: |
-          curl -f https://staging.your-domain.com/health || exit 1
+          STAGING_URL="${{ vars.STAGING_URL || 'https://staging.your-domain.com' }}"
+          curl -f $STAGING_URL/health || exit 1
           echo "Staging deployment successful"
 
       - name: Run staging tests
         run: |
-          curl -f https://staging.your-domain.com/ || exit 1
+          STAGING_URL="${{ vars.STAGING_URL || 'https://staging.your-domain.com' }}"
+          curl -f $STAGING_URL/ || exit 1
           echo "Staging tests passed"
 
   # Deploy to production
   deploy-production:
     runs-on: ubuntu-latest
-    needs: [test-and-build, security-scan, deploy-staging]
+    needs: [test-and-build, security-scan]
     if: |
-      (github.ref == 'refs/heads/production' && github.event_name == 'push') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+      ((github.ref == 'refs/heads/production' && github.event_name == 'push') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')) &&
+      vars.ENABLE_PRODUCTION_DEPLOY == 'true'
     environment:
       name: production
-      url: https://your-domain.com
+      url: ${{ vars.PRODUCTION_URL || 'https://your-domain.com' }}
     
     steps:
+      - name: Check required secrets
+        run: |
+          if [[ -z "${{ secrets.PRODUCTION_HOST }}" ]]; then
+            echo "::error::PRODUCTION_HOST secret not configured"
+            exit 1
+          fi
+          if [[ -z "${{ secrets.PRODUCTION_SSH_KEY }}" ]]; then
+            echo "::error::PRODUCTION_SSH_KEY secret not configured"
+            exit 1
+          fi
+          echo "All required secrets are configured"
+
       - name: Checkout deployment scripts
         uses: actions/checkout@v4
         with:
@@ -185,7 +211,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USER }}
+          username: ${{ secrets.PRODUCTION_USER || 'portfolio' }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
           port: ${{ secrets.PRODUCTION_PORT || 22 }}
           script: |
@@ -195,7 +221,7 @@ jobs:
             sudo -u portfolio ./scripts/deploy.sh --backup
             
             # Pull latest changes
-            git pull origin production
+            git pull origin main
             
             # Run zero-downtime deployment
             sudo -u portfolio ./scripts/deploy.sh
@@ -208,8 +234,9 @@ jobs:
 
       - name: Production health check
         run: |
+          PRODUCTION_URL="${{ vars.PRODUCTION_URL || 'https://your-domain.com' }}"
           for i in {1..10}; do
-            if curl -f https://your-domain.com/health; then
+            if curl -f $PRODUCTION_URL/health; then
               echo "Production health check passed"
               exit 0
             fi
@@ -221,21 +248,23 @@ jobs:
 
       - name: Run production smoke tests
         run: |
+          PRODUCTION_URL="${{ vars.PRODUCTION_URL || 'https://your-domain.com' }}"
           # Test main page
-          curl -f https://your-domain.com/ || exit 1
+          curl -f $PRODUCTION_URL/ || exit 1
           
           # Test assets loading
-          curl -f -I https://your-domain.com/assets/ || true
+          curl -f -I $PRODUCTION_URL/assets/ || true
           
           # Test security headers
-          curl -I https://your-domain.com/ | grep -i "strict-transport-security" || exit 1
+          curl -I $PRODUCTION_URL/ | grep -i "strict-transport-security" || exit 1
           
           echo "Production smoke tests passed"
 
       - name: Performance test
         run: |
+          PRODUCTION_URL="${{ vars.PRODUCTION_URL || 'https://your-domain.com' }}"
           # Simple performance check using curl
-          response_time=$(curl -o /dev/null -s -w '%{time_total}\n' https://your-domain.com/)
+          response_time=$(curl -o /dev/null -s -w '%{time_total}\n' $PRODUCTION_URL/)
           if (( $(echo "$response_time > 2.0" | bc -l) )); then
             echo "Warning: Response time is ${response_time}s (>2s)"
           else
@@ -286,7 +315,7 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     needs: [deploy-production]
-    if: always()
+    if: always() && secrets.SLACK_WEBHOOK != ''
     
     steps:
       - name: Notify deployment status
