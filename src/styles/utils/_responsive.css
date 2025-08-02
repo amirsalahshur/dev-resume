@@ -1,0 +1,164 @@
+/* Responsive Design */
+@media (min-width: 1024px) {
+    .hero-content {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-lg);
+    }
+
+    .timeline::before {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .timeline-item {
+        width: 50%;
+        padding-left: 0;
+    }
+
+    .timeline-item:nth-child(odd) {
+        text-align: right;
+        padding-right: 60px;
+    }
+
+    .timeline-item:nth-child(even) {
+        left: 50%;
+        padding-left: 60px;
+    }
+
+    .timeline-item:nth-child(odd) .timeline-dot {
+        right: -10px;
+        left: auto;
+    }
+
+    .timeline-item:nth-child(even) .timeline-dot {
+        left: -10px;
+    }
+
+    .projects-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .contact-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .cert-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .hero-content {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+
+    .skills-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .projects-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .contact-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    .hero-visual {
+        display: none;
+    }
+
+    .code-block {
+        font-size: 0.75rem;
+    }
+
+    .skill-list {
+        gap: 6px;
+    }
+
+    .skill-tag {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+    }
+
+    .project-tech {
+        gap: 6px;
+    }
+
+    .tech-badge {
+        padding: 3px 8px;
+        font-size: 0.7rem;
+    }
+
+    .contact-item {
+        padding: var(--spacing-sm);
+    }
+
+    .contact-value {
+        font-size: 0.85rem;
+    }
+
+    .code-line--indent-1 {
+        padding-left: 15px !important;
+    }
+
+    .code-line--indent-2 {
+        padding-left: 25px !important;
+    }
+
+    .matrix-bg {
+        opacity: 0.02;
+    }
+}
+
+@media (max-width: 374px) {
+    :root {
+        --fs-hero: 1.75rem;
+        --fs-subtitle: 1.1rem;
+        --fs-section-title: 1.5rem;
+    }
+
+    .skills-grid,
+    .projects-grid,
+    .cert-grid {
+        gap: var(--spacing-xs);
+    }
+}
+
+@media print {
+    .matrix-bg,
+    .terminal-bar {
+        display: none;
+    }
+
+    body {
+        background: white;
+        color: black;
+    }
+
+    .skill-category,
+    .timeline-content,
+    .project-card {
+        break-inside: avoid;
+    }
+}
+
+@media (prefers-contrast: high) {
+    :root {
+        --border-color: #fff;
+        --text-secondary: #e4e4e7;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

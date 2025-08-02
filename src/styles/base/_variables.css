@@ -1,0 +1,29 @@
+/* CSS Variables */
+:root {
+    /* Colors */
+    --bg-dark: #0a0e27;
+    --bg-secondary: #1a1f3a;
+    --text-primary: #e4e4e7;
+    --text-secondary: #94a3b8;
+    --accent-green: #10b981;
+    --accent-blue: #3b82f6;
+    --accent-purple: #8b5cf6;
+    --accent-orange: #f59e0b;
+    --border-color: #2d3748;
+    --code-bg: #1e293b;
+    
+    /* Responsive font sizes */
+    --fs-hero: clamp(2rem, 5vw, 3.5rem);
+    --fs-subtitle: clamp(1.2rem, 3vw, 1.5rem);
+    --fs-section-title: clamp(1.8rem, 4vw, 2.5rem);
+    --fs-heading: clamp(1.1rem, 2.5vw, 1.3rem);
+    --fs-body: clamp(0.875rem, 2vw, 1rem);
+    --fs-small: clamp(0.75rem, 1.5vw, 0.875rem);
+    
+    /* Responsive spacing */
+    --spacing-xs: clamp(0.5rem, 1vw, 0.75rem);
+    --spacing-sm: clamp(1rem, 2vw, 1.5rem);
+    --spacing-md: clamp(1.5rem, 3vw, 2.5rem);
+    --spacing-lg: clamp(2rem, 4vw, 4rem);
+    --spacing-xl: clamp(3rem, 6vw, 5rem);
+}
