@@ -7,12 +7,15 @@
     <meta name="theme-color" content="#0a0e27">
     <title>Amir Salahshur - Full Stack Developer & DevOps Engineer</title>
     
+    <!-- UPDATE: Move Google Fonts link to separate file or keep in head -->
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- UPDATE: Replace entire <style> block with link to src/styles/main.css -->
     <style>
+        /* MOVE TO: src/styles/base/_variables.css */
         /* CSS Variables */
         :root {
             /* Colors */
@@ -43,6 +46,7 @@
             --spacing-xl: clamp(3rem, 6vw, 5rem);
         }
 
+        /* MOVE TO: src/styles/base/_reset.css */
         /* Global styles and resets */
         * {
             margin: 0;
@@ -50,6 +54,7 @@
             box-sizing: border-box;
         }
 
+        /* MOVE TO: src/styles/base/_typography.css */
         body {
             font-family: 'JetBrains Mono', 'Fira Code', monospace;
             background-color: var(--bg-dark);
@@ -59,6 +64,7 @@
             font-size: var(--fs-body);
         }
 
+        /* MOVE TO: src/styles/base/_reset.css */
         /* Scrollbar Styling */
         ::-webkit-scrollbar {
             width: 8px;
@@ -78,6 +84,7 @@
             background: var(--accent-blue);
         }
 
+        /* MOVE TO: src/styles/layout/_grid.css */
         /* Container */
         .container {
             max-width: 1200px;
@@ -85,6 +92,7 @@
             padding: 0 var(--spacing-sm);
         }
 
+        /* MOVE TO: src/styles/base/_typography.css */
         /* Section Title */
         .section-title {
             font-size: var(--fs-section-title);
@@ -106,12 +114,14 @@
             margin-left: var(--spacing-xs);
         }
 
+        /* MOVE TO: src/styles/utils/_animations.css */
         /* Animations */
         @keyframes blink {
             0%, 50% { opacity: 1; }
             51%, 100% { opacity: 0; }
         }
 
+        /* MOVE TO: src/styles/utils/_animations.css */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -123,6 +133,7 @@
             }
         }
 
+        /* MOVE TO: src/styles/components/_header.css */
         /* Terminal Style Header */
         .terminal-header {
             background: linear-gradient(135deg, #1a1f3a 0%, #0f172a 100%);
@@ -131,6 +142,7 @@
             overflow: hidden;
         }
 
+        /* MOVE TO: src/styles/components/_header.css */
         .terminal-bar {
             background: #2d3748;
             padding: var(--spacing-xs) var(--spacing-sm);
@@ -139,21 +151,25 @@
             gap: var(--spacing-xs);
         }
 
+        /* MOVE TO: src/styles/components/_header.css */
         .terminal-dots {
             display: flex;
             gap: 6px;
         }
 
+        /* MOVE TO: src/styles/components/_header.css */
         .dot {
             width: clamp(10px, 1.5vw, 12px);
             height: clamp(10px, 1.5vw, 12px);
             border-radius: 50%;
         }
 
+        /* MOVE TO: src/styles/components/_header.css */
         .dot-red { background: #ef4444; }
         .dot-yellow { background: #f59e0b; }
         .dot-green { background: #10b981; }
 
+        /* MOVE TO: src/styles/components/_header.css */
         .terminal-title {
             flex: 1;
             text-align: center;
@@ -161,6 +177,7 @@
             color: var(--text-secondary);
         }
 
+        /* MOVE TO: src/styles/utils/_animations.css */
         /* Matrix Background Effect */
         .matrix-bg {
             position: fixed;
@@ -173,6 +190,7 @@
             z-index: -1;
         }
 
+        /* MOVE TO: src/styles/components/_hero.css */
         /* Hero Section */
         .hero {
             padding: var(--spacing-lg) var(--spacing-sm);
@@ -181,6 +199,7 @@
             position: relative;
         }
 
+        /* MOVE TO: src/styles/components/_hero.css */
         .hero-content {
             display: grid;
             grid-template-columns: 1fr;
@@ -188,6 +207,7 @@
             align-items: center;
         }
 
+        /* MOVE TO: src/styles/components/_hero.css */
         .hero-text h1 {
             font-size: var(--fs-hero);
             font-weight: 700;
@@ -199,6 +219,7 @@
             line-height: 1.2;
         }
 
+        /* MOVE TO: src/styles/components/_hero.css */
         .hero-text .subtitle {
             font-size: var(--fs-subtitle);
             color: var(--accent-green);
@@ -206,6 +227,7 @@
             font-weight: 500;
         }
 
+        /* MOVE TO: src/styles/components/_hero.css */
         .typing-effect {
             font-size: var(--fs-body);
             color: var(--text-secondary);
@@ -213,11 +235,13 @@
             min-height: 1.5em;
         }
 
+        /* MOVE TO: src/styles/components/_hero.css */
         .typing-effect::after {
             content: '_';
             animation: blink 1s infinite;
         }
 
+        /* MOVE TO: src/styles/components/_hero.css */
         /* Code Block Style */
         .code-block {
             background: var(--code-bg);
@@ -230,6 +254,7 @@
             max-width: 100%;
         }
 
+        /* MOVE TO: src/styles/components/_hero.css */
         .code-block::before {
             content: 'profile.json';
             position: absolute;
@@ -241,16 +266,19 @@
             font-size: var(--fs-small);
         }
 
+        /* MOVE TO: src/styles/components/_hero.css */
         .code-line {
             margin: 4px 0;
             white-space: nowrap;
         }
 
+        /* MOVE TO: src/styles/components/_hero.css */
         .code-key { color: #f472b6; }
         .code-string { color: #10b981; }
         .code-number { color: #f59e0b; }
         .code-boolean { color: #3b82f6; }
 
+        /* MOVE TO: src/styles/components/_hero.css */
         /* ASCII Art */
         .hero-visual pre {
             color: var(--accent-green);
@@ -260,6 +288,7 @@
             max-width: 100%;
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         /* Skills Section */
         .skills-section {
             background: var(--bg-secondary);
@@ -267,12 +296,14 @@
             position: relative;
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         .skills-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: var(--spacing-sm);
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         .skill-category {
             background: var(--bg-dark);
             border: 1px solid var(--border-color);
@@ -283,6 +314,7 @@
             overflow: hidden;
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         .skill-category::before {
             content: '';
             position: absolute;
@@ -295,15 +327,18 @@
             transition: transform 0.3s ease;
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         .skill-category:hover::before {
             transform: translateX(0);
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         .skill-category:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         .skill-category h3 {
             color: var(--accent-blue);
             margin-bottom: var(--spacing-sm);
@@ -313,16 +348,19 @@
             gap: var(--spacing-xs);
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         .skill-icon {
             font-size: 1.5em;
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         .skill-list {
             display: flex;
             flex-wrap: wrap;
             gap: var(--spacing-xs);
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         .skill-tag {
             background: var(--code-bg);
             border: 1px solid var(--border-color);
@@ -333,12 +371,14 @@
             white-space: nowrap;
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         .skill-tag:hover {
             border-color: var(--accent-green);
             color: var(--accent-green);
             transform: scale(1.05);
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         /* Certifications */
         .cert-grid {
             display: grid;
@@ -347,6 +387,7 @@
             margin-top: var(--spacing-lg);
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         .cert-card {
             background: var(--code-bg);
             border: 1px solid var(--border-color);
@@ -356,17 +397,20 @@
             transition: all 0.3s ease;
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         .cert-card:hover {
             border-color: var(--accent-orange);
             transform: scale(1.05);
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         .cert-icon {
             font-size: 2em;
             margin-bottom: var(--spacing-sm);
             color: var(--accent-orange);
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         .cert-name {
             color: var(--text-primary);
             font-weight: 600;
@@ -374,22 +418,26 @@
             font-size: var(--fs-body);
         }
 
+        /* MOVE TO: src/styles/components/_skills.css */
         .cert-issuer {
             color: var(--text-secondary);
             font-size: var(--fs-small);
         }
 
+        /* MOVE TO: src/styles/components/_timeline.css */
         /* Experience Timeline */
         .experience-section {
             padding: var(--spacing-xl) 0;
             background: var(--bg-dark);
         }
 
+        /* MOVE TO: src/styles/components/_timeline.css */
         .timeline {
             position: relative;
             padding: var(--spacing-sm) 0;
         }
 
+        /* MOVE TO: src/styles/components/_timeline.css */
         .timeline::before {
             content: '';
             position: absolute;
@@ -399,6 +447,7 @@
             background: var(--border-color);
         }
 
+        /* MOVE TO: src/styles/components/_timeline.css */
         .timeline-item {
             position: relative;
             padding: var(--spacing-md) 0;
@@ -406,6 +455,7 @@
             padding-left: 60px;
         }
 
+        /* MOVE TO: src/styles/components/_timeline.css */
         .timeline-dot {
             position: absolute;
             width: 16px;
@@ -417,6 +467,7 @@
             border: 3px solid var(--bg-dark);
         }
 
+        /* MOVE TO: src/styles/components/_timeline.css */
         .timeline-content {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
@@ -425,12 +476,14 @@
             position: relative;
         }
 
+        /* MOVE TO: src/styles/components/_timeline.css */
         .timeline-content h3 {
             color: var(--accent-blue);
             margin-bottom: var(--spacing-xs);
             font-size: var(--fs-heading);
         }
 
+        /* MOVE TO: src/styles/components/_timeline.css */
         .timeline-content .company {
             color: var(--accent-green);
             margin-bottom: var(--spacing-xs);
@@ -438,17 +491,20 @@
             font-size: var(--fs-body);
         }
 
+        /* MOVE TO: src/styles/components/_timeline.css */
         .timeline-content .date {
             color: var(--text-secondary);
             font-size: var(--fs-small);
             margin-bottom: var(--spacing-sm);
         }
 
+        /* MOVE TO: src/styles/components/_timeline.css */
         .timeline-content ul {
             list-style: none;
             padding: 0;
         }
 
+        /* MOVE TO: src/styles/components/_timeline.css */
         .timeline-content li {
             padding: var(--spacing-xs) 0;
             position: relative;
@@ -458,6 +514,7 @@
             line-height: 1.6;
         }
 
+        /* MOVE TO: src/styles/components/_timeline.css */
         .timeline-content li::before {
             content: '▸';
             position: absolute;
@@ -465,18 +522,21 @@
             color: var(--accent-green);
         }
 
+        /* MOVE TO: src/styles/components/_projects.css */
         /* Projects Section */
         .projects-section {
             background: var(--bg-secondary);
             padding: var(--spacing-xl) 0;
         }
 
+        /* MOVE TO: src/styles/components/_projects.css */
         .projects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: var(--spacing-md);
         }
 
+        /* MOVE TO: src/styles/components/_projects.css */
         .project-card {
             background: var(--bg-dark);
             border: 1px solid var(--border-color);
@@ -486,29 +546,34 @@
             position: relative;
         }
 
+        /* MOVE TO: src/styles/components/_projects.css */
         .project-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
         }
 
+        /* MOVE TO: src/styles/components/_projects.css */
         .project-header {
             background: var(--code-bg);
             padding: var(--spacing-sm);
             border-bottom: 1px solid var(--border-color);
         }
 
+        /* MOVE TO: src/styles/components/_projects.css */
         .project-header h3 {
             color: var(--accent-purple);
             margin-bottom: var(--spacing-xs);
             font-size: var(--fs-heading);
         }
 
+        /* MOVE TO: src/styles/components/_projects.css */
         .project-tech {
             display: flex;
             flex-wrap: wrap;
             gap: var(--spacing-xs);
         }
 
+        /* MOVE TO: src/styles/components/_projects.css */
         .tech-badge {
             background: rgba(59, 130, 246, 0.1);
             color: var(--accent-blue);
@@ -518,10 +583,12 @@
             border: 1px solid rgba(59, 130, 246, 0.3);
         }
 
+        /* MOVE TO: src/styles/components/_projects.css */
         .project-body {
             padding: var(--spacing-sm);
         }
 
+        /* MOVE TO: src/styles/components/_projects.css */
         .project-description {
             color: var(--text-secondary);
             margin-bottom: var(--spacing-sm);
@@ -529,12 +596,14 @@
             line-height: 1.8;
         }
 
+        /* MOVE TO: src/styles/components/_projects.css */
         .project-links {
             display: flex;
             gap: var(--spacing-sm);
             flex-wrap: wrap;
         }
 
+        /* MOVE TO: src/styles/components/_projects.css */
         .project-link {
             color: var(--accent-green);
             text-decoration: none;
@@ -545,10 +614,12 @@
             transition: color 0.2s ease;
         }
 
+        /* MOVE TO: src/styles/components/_projects.css */
         .project-link:hover {
             color: var(--text-primary);
         }
 
+        /* MOVE TO: src/styles/components/_contact.css */
         /* Contact Section */
         .contact-section {
             padding: var(--spacing-xl) 0;
@@ -556,6 +627,7 @@
             text-align: center;
         }
 
+        /* MOVE TO: src/styles/components/_contact.css */
         .contact-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -566,6 +638,7 @@
             margin-right: auto;
         }
 
+        /* MOVE TO: src/styles/components/_contact.css */
         .contact-item {
             display: flex;
             align-items: center;
@@ -577,27 +650,32 @@
             transition: all 0.3s ease;
         }
 
+        /* MOVE TO: src/styles/components/_contact.css */
         .contact-item:hover {
             border-color: var(--accent-green);
             transform: translateY(-3px);
         }
 
+        /* MOVE TO: src/styles/components/_contact.css */
         .contact-icon {
             font-size: 1.5em;
             color: var(--accent-green);
         }
 
+        /* MOVE TO: src/styles/components/_contact.css */
         .contact-text {
             text-align: left;
             flex: 1;
         }
 
+        /* MOVE TO: src/styles/components/_contact.css */
         .contact-label {
             font-size: var(--fs-small);
             color: var(--text-secondary);
             display: block;
         }
 
+        /* MOVE TO: src/styles/components/_contact.css */
         .contact-value {
             color: var(--text-primary);
             text-decoration: none;
@@ -606,10 +684,12 @@
             word-break: break-word;
         }
 
+        /* MOVE TO: src/styles/components/_contact.css */
         .contact-value:hover {
             color: var(--accent-blue);
         }
 
+        /* MOVE TO: src/styles/components/_footer.css */
         /* Footer */
         .footer {
             background: var(--bg-secondary);
@@ -618,12 +698,14 @@
             border-top: 1px solid var(--border-color);
         }
 
+        /* MOVE TO: src/styles/components/_footer.css */
         .footer-text {
             color: var(--text-secondary);
             font-size: var(--fs-small);
             padding: 0 var(--spacing-sm);
         }
 
+        /* MOVE TO: src/styles/utils/_responsive.css */
         /* Responsive Design */
         @media (min-width: 1024px) {
             .hero-content {
@@ -673,6 +755,7 @@
             }
         }
 
+        /* MOVE TO: src/styles/utils/_responsive.css */
         @media (min-width: 768px) and (max-width: 1023px) {
             .hero-content {
                 grid-template-columns: 1fr;
@@ -692,6 +775,7 @@
             }
         }
 
+        /* MOVE TO: src/styles/utils/_responsive.css */
         @media (max-width: 767px) {
             .hero-visual {
                 display: none;
@@ -740,6 +824,7 @@
             }
         }
 
+        /* MOVE TO: src/styles/utils/_responsive.css */
         @media (max-width: 374px) {
             :root {
                 --fs-hero: 1.75rem;
@@ -754,6 +839,7 @@
             }
         }
 
+        /* MOVE TO: src/styles/utils/_responsive.css */
         @media print {
             .matrix-bg,
             .terminal-bar {
@@ -772,6 +858,7 @@
             }
         }
 
+        /* MOVE TO: src/styles/utils/_responsive.css */
         @media (prefers-contrast: high) {
             :root {
                 --border-color: #fff;
@@ -779,6 +866,7 @@
             }
         }
 
+        /* MOVE TO: src/styles/utils/_responsive.css */
         @media (prefers-reduced-motion: reduce) {
             *,
             *::before,
@@ -817,6 +905,7 @@
                         <div class="code-line">
                             <span class="code-key">const</span> developer = {
                         </div>
+                        <!-- UPDATE: Remove inline styles, use CSS classes for indentation -->
                         <div class="code-line" style="padding-left: 20px;">
                             <span class="code-string">"name"</span>: <span class="code-string">"Amir Salahshur"</span>,
                         </div>
@@ -829,6 +918,7 @@
                         <div class="code-line" style="padding-left: 20px;">
                             <span class="code-string">"passionate_about"</span>: [
                         </div>
+                        <!-- UPDATE: Remove inline styles, use CSS classes for indentation -->
                         <div class="code-line" style="padding-left: 40px;">
                             <span class="code-string">"Cloud Architecture"</span>,
                         </div>
@@ -1226,6 +1316,7 @@
     <section class="contact-section">
         <div class="container">
             <h2 class="section-title">Get In Touch</h2>
+            <!-- UPDATE: Remove inline styles, use CSS classes instead -->
             <p style="color: var(--text-secondary); margin-bottom: var(--spacing-lg); font-size: var(--fs-body);">
                 Let's discuss how I can help build your next infrastructure or development project
             </p>
@@ -1267,11 +1358,15 @@
         </div>
     </footer>
 
+    <!-- UPDATE: Replace entire <script> block with link to src/scripts/main.js -->
     <script>
+        // MOVE TO: src/scripts/modules/matrix-effect.js
         // Matrix Rain Effect
+        // MOVE TO: src/scripts/modules/matrix-effect.js
         const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
 
+        // MOVE TO: src/scripts/modules/matrix-effect.js
         // Set canvas size
         function setCanvasSize() {
             canvas.width = window.innerWidth;
@@ -1279,12 +1374,14 @@
         }
         setCanvasSize();
 
+        // MOVE TO: src/scripts/modules/matrix-effect.js
         const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
         const matrixArray = matrix.split("");
 
         const fontSize = 10;
         let columns = canvas.width / fontSize;
 
+        // MOVE TO: src/scripts/modules/matrix-effect.js
         let drops = [];
         function initDrops() {
             drops = [];
@@ -1295,6 +1392,7 @@
         }
         initDrops();
 
+        // MOVE TO: src/scripts/modules/matrix-effect.js
         function draw() {
             ctx.fillStyle = 'rgba(10, 14, 39, 0.04)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1313,26 +1411,32 @@
             }
         }
 
+        // MOVE TO: src/scripts/modules/matrix-effect.js
         setInterval(draw, 35);
 
+        // MOVE TO: src/scripts/modules/matrix-effect.js
         // Resize canvas on window resize
         window.addEventListener('resize', () => {
             setCanvasSize();
             initDrops();
         });
 
+        // MOVE TO: src/scripts/modules/typing-effect.js
         // Typing Effect
         const typingElement = document.querySelector('.typing-effect');
+        // MOVE TO: src/scripts/modules/typing-effect.js
         const texts = [
             'Building scalable infrastructure and elegant code solutions...',
             'Automating everything that can be automated...',
             'Turning coffee into cloud infrastructure...',
             'Deploying happiness, one container at a time...'
         ];
+        // MOVE TO: src/scripts/modules/typing-effect.js
         let textIndex = 0;
         let charIndex = 0;
         let isDeleting = false;
 
+        // MOVE TO: src/scripts/modules/typing-effect.js
         function typeWriter() {
             const currentText = texts[textIndex];
             
@@ -1358,9 +1462,11 @@
             setTimeout(typeWriter, typeSpeed);
         }
 
+        // MOVE TO: src/scripts/modules/typing-effect.js
         // Start typing effect
         typeWriter();
 
+        // MOVE TO: src/scripts/modules/smooth-scroll.js
         // Smooth Scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -1375,12 +1481,14 @@
             });
         });
 
+        // MOVE TO: src/scripts/modules/intersection-observer.js
         // Intersection Observer for animations
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -100px 0px'
         };
 
+        // MOVE TO: src/scripts/modules/intersection-observer.js
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if(entry.isIntersecting) {
@@ -1390,6 +1498,7 @@
             });
         }, observerOptions);
 
+        // MOVE TO: src/scripts/modules/intersection-observer.js
         // Observe all sections
         document.querySelectorAll('section').forEach(section => {
             section.style.opacity = '0';
@@ -1398,19 +1507,23 @@
             observer.observe(section);
         });
 
+        // MOVE TO: src/scripts/main.js
         // Touch interactions for mobile
         let touchStartY = 0;
         let touchEndY = 0;
 
+        // MOVE TO: src/scripts/main.js
         document.addEventListener('touchstart', (e) => {
             touchStartY = e.changedTouches[0].screenY;
         });
 
+        // MOVE TO: src/scripts/main.js
         document.addEventListener('touchend', (e) => {
             touchEndY = e.changedTouches[0].screenY;
             handleSwipe();
         });
 
+        // MOVE TO: src/scripts/main.js
         function handleSwipe() {
             if (touchEndY < touchStartY - 50) {
                 // Swipe up - can be used for navigation
