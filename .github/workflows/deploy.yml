@@ -184,7 +184,7 @@ jobs:
     if: |
       ((github.ref == 'refs/heads/production' && github.event_name == 'push') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')) &&
-      vars.ENABLE_PRODUCTION_DEPLOY == 'true'
+      (vars.ENABLE_PRODUCTION_DEPLOY != 'false')
     environment:
       name: production
       url: ${{ vars.PRODUCTION_URL || 'https://your-domain.com' }}
@@ -262,7 +262,8 @@ jobs:
           PRODUCTION_URL="${{ vars.PRODUCTION_URL || 'https://your-domain.com' }}"
           # Simple performance check using curl
           response_time=$(curl -o /dev/null -s -w '%{time_total}\n' $PRODUCTION_URL/)
-          if (( $(echo "$response_time > 2.0" | bc -l) )); then
+          # Use awk instead of bc for better compatibility
+          if awk "BEGIN {exit !($response_time > 2.0)}"; then
             echo "Warning: Response time is ${response_time}s (>2s)"
           else
             echo "Performance check passed: ${response_time}s"

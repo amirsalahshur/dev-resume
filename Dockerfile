@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for Production Portfolio Application
 # Stage 1: Build stage
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -18,7 +18,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Production stage
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 # Install PM2 globally
 RUN npm install -g pm2@latest
@@ -60,7 +60,7 @@ EXPOSE 3000 3001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD node scripts/health-check.js || exit 1
+    CMD node /app/scripts/health-check.js || exit 1
 
 # Use PM2 to run the application
 CMD ["pm2-runtime", "start", "ecosystem.config.js", "--env", "production"]

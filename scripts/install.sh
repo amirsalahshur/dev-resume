@@ -9,9 +9,9 @@
 
 set -euo pipefail
 
-# Configuration
-DOMAIN="${1:-}"
-EMAIL="${2:-}"
+# Configuration  
+DOMAIN=""
+EMAIL=""
 SKIP_DOMAIN_CHECK=false
 DRY_RUN=false
 FORCE_INSTALL=false
@@ -215,8 +215,10 @@ show_banner() {
 EOF
 }
 
-# Parse command line arguments
+# Parse command line arguments  
 parse_arguments() {
+    info "Processing arguments: $*"
+    
     while [[ $# -gt 0 ]]; do
         case $1 in
             --skip-domain-check)
@@ -238,8 +240,10 @@ parse_arguments() {
             *)
                 if [[ -z "$DOMAIN" ]]; then
                     DOMAIN="$1"
+                    info "Setting domain: $DOMAIN"
                 elif [[ -z "$EMAIL" ]]; then
                     EMAIL="$1"
+                    info "Setting email: $EMAIL"
                 else
                     error "Unknown argument: $1"
                 fi
@@ -283,10 +287,23 @@ validate_inputs() {
         error "Email address is required. Use --help for usage information."
     fi
     
-    # Enhanced domain validation to support subdomains (unless skipped)
+    # Enhanced domain validation to support all valid subdomains (unless skipped)
     if [[ "$SKIP_DOMAIN_CHECK" != "true" ]]; then
-        if [[ ! "$DOMAIN" =~ ^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$ ]]; then
-            error "Invalid domain format: $DOMAIN. Expected format: example.com, subdomain.example.com, or api.v2.example.com. Use --skip-domain-check to bypass validation."
+        # More flexible regex to support complex subdomains like info.amirsalahshur.xyz
+        if [[ ! "$DOMAIN" =~ ^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$ ]]; then
+            error "Invalid domain format: $DOMAIN. Expected format: example.com, info.example.com, api.v2.example.com, or info.amirsalahshur.xyz. Use --skip-domain-check to bypass validation."
+        fi
+        
+        # Additional validation for domain structure
+        local domain_parts=(${DOMAIN//./ })
+        if [[ ${#domain_parts[@]} -lt 2 ]]; then
+            error "Domain must have at least 2 parts (e.g., example.com): $DOMAIN"
+        fi
+        
+        # Check for valid TLD (at least 2 characters)
+        local tld="${domain_parts[-1]}"
+        if [[ ${#tld} -lt 2 ]]; then
+            error "Invalid top-level domain: $tld. Must be at least 2 characters."
         fi
     else
         warning "Domain validation skipped for: $DOMAIN"
@@ -545,9 +562,24 @@ configure_nginx() {
     # Copy nginx configuration
     cp "$APP_DIR/nginx.conf" "/etc/nginx/sites-available/portfolio"
     
-    # Update configuration with actual domain
+    # Update configuration with actual domain (handles subdomains correctly)
     sed -i "s/your-domain\.com/$DOMAIN/g" "/etc/nginx/sites-available/portfolio"
-    sed -i "s/www\.your-domain\.com/www.$DOMAIN/g" "/etc/nginx/sites-available/portfolio"
+    
+    # Handle www subdomain logic properly
+    if [[ "$DOMAIN" == www.* ]]; then
+        # If domain already starts with www, don't add another www
+        sed -i "s/www\.your-domain\.com/$DOMAIN/g" "/etc/nginx/sites-available/portfolio"
+    else
+        # Add www version for non-www domains (but only if it's a second-level domain)
+        local domain_parts=(${DOMAIN//./ })
+        if [[ ${#domain_parts[@]} -eq 2 ]]; then
+            # Only add www for second-level domains like example.com
+            sed -i "s/www\.your-domain\.com/www.$DOMAIN/g" "/etc/nginx/sites-available/portfolio"
+        else
+            # For subdomains like api.example.com, remove the www version entirely
+            sed -i "s/ www\.your-domain\.com//g" "/etc/nginx/sites-available/portfolio"
+        fi
+    fi
     
     # Enable site
     ln -s /etc/nginx/sites-available/portfolio /etc/nginx/sites-enabled/
@@ -568,10 +600,17 @@ generate_ssl() {
     # Stop nginx temporarily
     execute_with_log "Stopping nginx for certificate generation" "systemctl stop nginx"
     
-    # Generate certificate with proper subdomain support
+    # Generate certificate with intelligent subdomain support
     local cert_domains="-d $DOMAIN"
+    
+    # Only add www version for second-level domains (not subdomains)
     if [[ "$DOMAIN" != www.* ]]; then
-        cert_domains="$cert_domains -d www.$DOMAIN"
+        local domain_parts=(${DOMAIN//./ })
+        if [[ ${#domain_parts[@]} -eq 2 ]]; then
+            # Only add www for second-level domains like example.com
+            cert_domains="$cert_domains -d www.$DOMAIN"
+        fi
+        # For subdomains like info.example.com, don't add www version
     fi
     
     execute_with_log "Generating SSL certificate" \
@@ -754,8 +793,6 @@ EOF
 
 # Main installation function
 main() {
-    # Parse command line arguments first
-    parse_arguments "$@"
     
     # Create log file
     touch "$LOG_FILE"
@@ -811,5 +848,6 @@ cleanup_on_error() {
 
 trap 'cleanup_on_error $LINENO' ERR
 
-# Run main installation
-main "$@"
+# Parse arguments and run main
+parse_arguments "$@"
+main

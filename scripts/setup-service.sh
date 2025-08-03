@@ -213,32 +213,42 @@ install_service() {
     cp "$SERVICE_PATH" "/etc/systemd/system/" || error "Failed to copy service file"
     chmod 644 "/etc/systemd/system/$SERVICE_FILE" || error "Failed to set service file permissions"
     
-    # Reload systemd and wait for processing
+    # Reload systemd with improved timing and verification
     info "Reloading systemd daemon..."
     if ! systemctl daemon-reload; then
         error "Failed to reload systemd daemon"
     fi
     
-    # Give systemd time to process the new service file
+    # Give systemd more time to process the new service file
     info "Waiting for systemd to process changes..."
-    sleep 3
+    sleep 5
     
-    # Verify service file is recognized
-    local retries=5
+    # Verify service file is recognized with better retry logic
+    local retries=10
+    local wait_time=3
     while [[ $retries -gt 0 ]]; do
-        if systemctl list-unit-files | grep -q "$SERVICE_NAME.service"; then
-            success "Service file recognized by systemd"
+        info "Verifying service recognition (attempt $((11-retries))/10)..."
+        
+        # Multiple checks to ensure service is properly recognized
+        if systemctl list-unit-files "$SERVICE_NAME.service" 2>/dev/null | grep -q "$SERVICE_NAME.service" && \
+           systemctl cat "$SERVICE_NAME.service" >/dev/null 2>&1; then
+            success "Service file recognized and validated by systemd"
             break
         else
-            warning "Service not yet recognized, waiting..."
-            sleep 2
+            warning "Service not yet recognized, waiting ${wait_time}s before retry..."
+            sleep $wait_time
+            
+            # Force another daemon-reload with longer wait
             systemctl daemon-reload
+            sleep 2
+            
             ((retries--))
+            wait_time=$((wait_time + 1))  # Increase wait time each retry
         fi
     done
     
     if [[ $retries -eq 0 ]]; then
-        error "Service file not recognized by systemd after multiple attempts"
+        error "Service file not recognized by systemd after 10 attempts. Check service file syntax and permissions."
     fi
     
     # Enable service with retry logic
@@ -380,9 +390,13 @@ verify_installation() {
     info "Verifying installation..."
     local verification_failed=false
     
-    # Force systemd to refresh before verification
+    # Force systemd to refresh before verification with extended timing
     info "Refreshing systemd state before verification..."
     systemctl daemon-reload
+    sleep 5
+    
+    # Additional systemd reset to ensure clean state
+    systemctl reset-failed 2>/dev/null || true
     sleep 2
     
     # Check user exists

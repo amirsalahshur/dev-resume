@@ -215,33 +215,70 @@ post_deployment_checks() {
     success "Post-deployment checks passed"
 }
 
-# Rollback function
+# Enhanced rollback function with better error handling
 rollback() {
     if [[ "$ROLLBACK_ENABLED" != "true" ]]; then
         error "Rollback is disabled"
     fi
     
-    error "Deployment failed, initiating rollback..."
+    warning "Deployment failed, initiating rollback..."
     
     if [[ -f "/tmp/portfolio_last_backup" ]]; then
         BACKUP_DIR=$(cat /tmp/portfolio_last_backup)
         if [[ -d "$BACKUP_DIR" ]]; then
             info "Rolling back to $BACKUP_DIR"
             
-            # Stop current PM2 processes
-            pm2 stop "$APP_NAME" || true
+            # Stop current PM2 processes gracefully
+            info "Stopping current PM2 processes..."
+            pm2 stop "$APP_NAME" || warning "Failed to stop PM2 process gracefully"
+            pm2 delete "$APP_NAME" 2>/dev/null || true
             
-            # Restore backup
-            rm -rf "$DEPLOY_PATH/dist"
-            cp -r "$BACKUP_DIR/dist" "$DEPLOY_PATH/"
+            # Restore backup with verification
+            info "Restoring backup files..."
+            if [[ -d "$DEPLOY_PATH/dist" ]]; then
+                rm -rf "$DEPLOY_PATH/dist"
+            fi
             
-            # Restart PM2
-            pm2 start ecosystem.config.js --env production
+            if cp -r "$BACKUP_DIR/dist" "$DEPLOY_PATH/"; then
+                success "Backup files restored successfully"
+            else
+                error "Failed to restore backup files"
+            fi
             
-            # Reload nginx
-            sudo systemctl reload nginx
+            # Restore package.json and ecosystem config if available
+            if [[ -f "$BACKUP_DIR/package.json" ]]; then
+                cp "$BACKUP_DIR/package.json" "$DEPLOY_PATH/" || warning "Failed to restore package.json"
+            fi
+            if [[ -f "$BACKUP_DIR/ecosystem.config.js" ]]; then
+                cp "$BACKUP_DIR/ecosystem.config.js" "$DEPLOY_PATH/" || warning "Failed to restore ecosystem.config.js"
+            fi
             
-            success "Rollback completed"
+            # Restart PM2 with error handling
+            info "Restarting PM2 processes..."
+            cd "$DEPLOY_PATH"
+            
+            if pm2 start ecosystem.config.js --env production; then
+                success "PM2 processes restarted successfully"
+            else
+                error "Failed to restart PM2 processes during rollback"
+            fi
+            
+            # Test nginx configuration before reload
+            info "Testing nginx configuration..."
+            if sudo nginx -t; then
+                sudo systemctl reload nginx
+                success "Nginx reloaded successfully"
+            else
+                warning "Nginx configuration test failed, skipping reload"
+            fi
+            
+            # Verify rollback success
+            sleep 10
+            if health_check "$HEALTH_CHECK_URL" 5; then
+                success "Rollback completed successfully"
+            else
+                error "Rollback completed but health check failed"
+            fi
         else
             error "Backup directory not found: $BACKUP_DIR"
         fi
@@ -292,34 +329,91 @@ post_deploy_hook() {
     success "Post-deployment hooks completed"
 }
 
-# Main deployment function
+# Main deployment function with enhanced error handling
 main() {
     info "Starting zero-downtime deployment of $APP_NAME"
     
     # Ensure log directory exists
     mkdir -p "$(dirname "$LOG_FILE")"
     
-    # Setup error handling
-    trap rollback ERR
+    # Setup error handling with cleanup
+    trap 'handle_deployment_error $LINENO' ERR
     
-    # Run deployment steps
-    check_user
-    check_prerequisites
-    pre_deploy_hook
-    create_backup
-    install_dependencies
-    build_application
-    deploy_with_pm2
-    reload_nginx
-    post_deployment_checks
-    post_deploy_hook
-    cleanup_backups
+    # Deployment start time for metrics
+    DEPLOY_START_TIME=$(date +%s)
     
-    success "Zero-downtime deployment completed successfully!"
+    # Run deployment steps with individual error handling
+    local step_count=0
+    local total_steps=10
+    
+    run_deployment_step "check_user" "Checking deployment user" $((++step_count)) $total_steps
+    run_deployment_step "check_prerequisites" "Verifying prerequisites" $((++step_count)) $total_steps
+    run_deployment_step "pre_deploy_hook" "Running pre-deployment hooks" $((++step_count)) $total_steps
+    run_deployment_step "create_backup" "Creating backup" $((++step_count)) $total_steps
+    run_deployment_step "install_dependencies" "Installing dependencies" $((++step_count)) $total_steps
+    run_deployment_step "build_application" "Building application" $((++step_count)) $total_steps
+    run_deployment_step "deploy_with_pm2" "Deploying with PM2" $((++step_count)) $total_steps
+    run_deployment_step "reload_nginx" "Reloading Nginx" $((++step_count)) $total_steps
+    run_deployment_step "post_deployment_checks" "Running deployment checks" $((++step_count)) $total_steps
+    run_deployment_step "post_deploy_hook" "Running post-deployment hooks" $((++step_count)) $total_steps
+    
+    # Cleanup old backups (non-critical)
+    cleanup_backups || warning "Failed to cleanup old backups (non-critical)"
+    
+    # Calculate deployment time
+    DEPLOY_END_TIME=$(date +%s)
+    DEPLOY_DURATION=$((DEPLOY_END_TIME - DEPLOY_START_TIME))
+    
+    success "Zero-downtime deployment completed successfully in ${DEPLOY_DURATION}s!"
     
     # Display application status
     info "Application Status:"
-    pm2 status "$APP_NAME"
+    pm2 status "$APP_NAME" || warning "Failed to get PM2 status"
+    
+    # Final health check
+    if health_check "$HEALTH_CHECK_URL" 3; then
+        success "Final health check passed"
+    fi
+}
+
+# Function to run deployment steps with error handling
+run_deployment_step() {
+    local step_function="$1"
+    local step_description="$2"
+    local current_step="$3"
+    local total_steps="$4"
+    
+    info "Step $current_step/$total_steps: $step_description"
+    
+    if ! $step_function; then
+        error "Deployment step failed: $step_description"
+    fi
+    
+    success "Step $current_step/$total_steps completed: $step_description"
+}
+
+# Enhanced error handler
+handle_deployment_error() {
+    local line_no=$1
+    local exit_code=$?
+    
+    error "Deployment failed at line $line_no with exit code $exit_code"
+    
+    # Log deployment failure details
+    log "Deployment failure details:"
+    log "- Line: $line_no"
+    log "- Exit code: $exit_code"
+    log "- Command: ${BASH_COMMAND:-unknown}"
+    log "- Time: $(date)"
+    
+    # Attempt rollback if enabled
+    if [[ "$ROLLBACK_ENABLED" == "true" ]]; then
+        rollback
+    else
+        warning "Rollback is disabled. Manual intervention may be required."
+    fi
+    
+    exit $exit_code
 }
 
 # Script options

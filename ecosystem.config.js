@@ -2,8 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'amir-portfolio',
-      script: 'npm',
-      args: 'run serve',
+      script: 'npx',
+      args: 'vite preview --port 3000 --host 0.0.0.0',
       instances: 'max',
       exec_mode: 'cluster',
       watch: false,
