@@ -55,10 +55,20 @@ install_prerequisites() {
     # Update package lists
     apt-get update
     
-    # Install Node.js (if not already installed)
+    # Install Node.js 20+ (if not already installed)
     if ! command -v node &> /dev/null; then
-        curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+        curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
         apt-get install -y nodejs
+    else
+        # Check Node.js version
+        NODE_VERSION=$(node --version | cut -d'v' -f2)
+        REQUIRED_VERSION="20.0.0"
+        if ! printf '%s\n%s\n' "$REQUIRED_VERSION" "$NODE_VERSION" | sort -V -C; then
+            warning "Node.js version $NODE_VERSION is less than required $REQUIRED_VERSION"
+            info "Upgrading Node.js to version 20..."
+            curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+            apt-get install -y nodejs
+        fi
     fi
     
     # Install PM2 globally

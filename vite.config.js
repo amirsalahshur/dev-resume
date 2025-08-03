@@ -1,7 +1,10 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { fileURLToPath, URL } from 'node:url';
 import autoprefixer from 'autoprefixer';
 import cssnano from 'cssnano';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig(({ command, mode }) => {
   const isProduction = mode === 'production';

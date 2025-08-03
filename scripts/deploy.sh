@@ -76,7 +76,7 @@ check_prerequisites() {
     
     # Check Node.js version
     NODE_VERSION=$(node --version | cut -d'v' -f2)
-    REQUIRED_VERSION="18.0.0"
+    REQUIRED_VERSION="20.0.0"
     if ! printf '%s\n%s\n' "$REQUIRED_VERSION" "$NODE_VERSION" | sort -V -C; then
         error "Node.js version $NODE_VERSION is less than required $REQUIRED_VERSION"
     fi
