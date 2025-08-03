@@ -1,5 +1,7 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import autoprefixer from 'autoprefixer';
+import cssnano from 'cssnano';
 
 export default defineConfig(({ command, mode }) => {
   const isProduction = mode === 'production';
@@ -84,8 +86,8 @@ export default defineConfig(({ command, mode }) => {
       },
       postcss: {
         plugins: isProduction ? [
-          require('autoprefixer'),
-          require('cssnano')({
+          autoprefixer,
+          cssnano({
             preset: ['default', {
               discardComments: { removeAll: true },
               normalizeWhitespace: true
