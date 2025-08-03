@@ -12,6 +12,8 @@ SERVICE_GROUP="portfolio"
 APP_DIR="/var/www/portfolio"
 LOG_DIR="/var/log/portfolio"
 SERVICE_FILE="portfolio.service"
+REPAIR_MODE=false
+DRY_RUN=false
 
 # Colors for output
 RED='\033[0;31m'
@@ -146,9 +148,43 @@ create_directories() {
     success "Directories created"
 }
 
+# Retry function for systemd operations
+retry_systemd_operation() {
+    local operation="$1"
+    local max_attempts=3
+    local attempt=1
+    local delay=2
+    
+    while [[ $attempt -le $max_attempts ]]; do
+        info "Attempting $operation (attempt $attempt/$max_attempts)..."
+        
+        if eval "$operation"; then
+            success "$operation completed successfully"
+            return 0
+        else
+            if [[ $attempt -lt $max_attempts ]]; then
+                warning "$operation failed, retrying in ${delay}s..."
+                sleep $delay
+                delay=$((delay * 2))  # Exponential backoff
+            else
+                error "$operation failed after $max_attempts attempts"
+                return 1
+            fi
+        fi
+        
+        ((attempt++))
+    done
+}
+
 # Install systemd service
 install_service() {
     info "Installing systemd service..."
+    
+    # Stop service if it's already running
+    if systemctl is-active --quiet "$SERVICE_NAME" 2>/dev/null; then
+        info "Stopping existing $SERVICE_NAME service..."
+        systemctl stop "$SERVICE_NAME" || warning "Failed to stop existing service"
+    fi
     
     # Get the directory where this script is located
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -173,14 +209,41 @@ install_service() {
     fi
     
     # Copy service file
-    cp "$SERVICE_PATH" "/etc/systemd/system/"
-    chmod 644 "/etc/systemd/system/$SERVICE_FILE"
+    info "Copying service file to systemd directory..."
+    cp "$SERVICE_PATH" "/etc/systemd/system/" || error "Failed to copy service file"
+    chmod 644 "/etc/systemd/system/$SERVICE_FILE" || error "Failed to set service file permissions"
     
-    # Reload systemd
-    systemctl daemon-reload
+    # Reload systemd and wait for processing
+    info "Reloading systemd daemon..."
+    if ! systemctl daemon-reload; then
+        error "Failed to reload systemd daemon"
+    fi
     
-    # Enable service
-    systemctl enable "$SERVICE_NAME"
+    # Give systemd time to process the new service file
+    info "Waiting for systemd to process changes..."
+    sleep 3
+    
+    # Verify service file is recognized
+    local retries=5
+    while [[ $retries -gt 0 ]]; do
+        if systemctl list-unit-files | grep -q "$SERVICE_NAME.service"; then
+            success "Service file recognized by systemd"
+            break
+        else
+            warning "Service not yet recognized, waiting..."
+            sleep 2
+            systemctl daemon-reload
+            ((retries--))
+        fi
+    done
+    
+    if [[ $retries -eq 0 ]]; then
+        error "Service file not recognized by systemd after multiple attempts"
+    fi
+    
+    # Enable service with retry logic
+    info "Enabling $SERVICE_NAME service..."
+    retry_systemd_operation "systemctl enable $SERVICE_NAME"
     
     success "Systemd service installed and enabled"
 }
@@ -317,8 +380,13 @@ verify_installation() {
     info "Verifying installation..."
     local verification_failed=false
     
+    # Force systemd to refresh before verification
+    info "Refreshing systemd state before verification..."
+    systemctl daemon-reload
+    sleep 2
+    
     # Check user exists
-    if getent passwd "$SERVICE_USER" > /dev/null; then
+    if getent passwd "$SERVICE_USER" > /dev/null 2>&1; then
         success "✓ User $SERVICE_USER exists"
     else
         error "✗ User $SERVICE_USER not found"
@@ -326,10 +394,15 @@ verify_installation() {
     fi
     
     # Check directories exist and have correct permissions
-    if [[ -d "$APP_DIR" ]] && [[ "$(stat -c %U:%G "$APP_DIR")" == "$SERVICE_USER:$SERVICE_GROUP" ]]; then
+    if [[ -d "$APP_DIR" ]] && [[ "$(stat -c %U:%G "$APP_DIR" 2>/dev/null)" == "$SERVICE_USER:$SERVICE_GROUP" ]]; then
         success "✓ Application directory configured correctly"
     else
         error "✗ Application directory not configured correctly"
+        if [[ -d "$APP_DIR" ]]; then
+            error "   Current ownership: $(stat -c %U:%G "$APP_DIR" 2>/dev/null || echo "unknown")"
+        else
+            error "   Directory does not exist: $APP_DIR"
+        fi
         verification_failed=true
     fi
     
@@ -341,24 +414,34 @@ verify_installation() {
         verification_failed=true
     fi
     
-    # Check service is installed
-    if systemctl list-unit-files | grep -q "$SERVICE_NAME.service"; then
+    # Check service is installed (with detailed error output)
+    local service_check_output
+    service_check_output=$(systemctl list-unit-files "$SERVICE_NAME.service" 2>&1)
+    if echo "$service_check_output" | grep -q "$SERVICE_NAME.service"; then
         success "✓ Systemd service installed"
     else
         error "✗ Systemd service not installed"
+        error "   systemctl output: $service_check_output"
         verification_failed=true
     fi
     
-    # Check service is enabled
-    if systemctl is-enabled "$SERVICE_NAME" > /dev/null 2>&1; then
+    # Check service is enabled (with detailed error output)
+    local enable_check_output
+    enable_check_output=$(systemctl is-enabled "$SERVICE_NAME" 2>&1)
+    if [[ "$enable_check_output" == "enabled" ]]; then
         success "✓ Service is enabled"
     else
         error "✗ Service is not enabled"
+        error "   Current state: $enable_check_output"
+        # Show systemctl status for more details
+        local status_output
+        status_output=$(systemctl status "$SERVICE_NAME" 2>&1 || true)
+        error "   Service status: $status_output"
         verification_failed=true
     fi
     
     # Check PM2 is installed
-    if command -v pm2 > /dev/null; then
+    if command -v pm2 > /dev/null 2>&1; then
         success "✓ PM2 is installed"
     else
         error "✗ PM2 is not installed or not in PATH"
@@ -376,6 +459,12 @@ verify_installation() {
     
     if [[ "$verification_failed" == "true" ]]; then
         error "Installation verification failed - see errors above"
+        info "Troubleshooting steps:"
+        info "1. Check systemd logs: journalctl -u $SERVICE_NAME"
+        info "2. Verify service file: cat /etc/systemd/system/$SERVICE_FILE"
+        info "3. Re-run daemon-reload: systemctl daemon-reload"
+        info "4. Check service status: systemctl status $SERVICE_NAME"
+        return 1
     fi
     
     success "Installation verification completed"
@@ -400,42 +489,199 @@ show_next_steps() {
     echo "  - Deploy: sudo -u $SERVICE_USER ./scripts/deploy.sh"
 }
 
+# Execute command with dry run support
+execute_command() {
+    local description="$1"
+    local command="$2"
+    local allow_failure="${3:-false}"
+    
+    info "$description..."
+    
+    if [[ "$DRY_RUN" == "true" ]]; then
+        info "[DRY RUN] Would execute: $command"
+        return 0
+    fi
+    
+    if eval "$command"; then
+        return 0
+    else
+        local exit_code=$?
+        if [[ "$allow_failure" == "true" ]]; then
+            warning "$description failed but continuing"
+            return $exit_code
+        else
+            error "$description failed"
+        fi
+    fi
+}
+
 # Main installation function
 main() {
-    info "Starting portfolio service setup..."
+    if [[ "$DRY_RUN" == "true" ]]; then
+        warning "DRY RUN MODE - No changes will be made to the system"
+        info "This will show you what would be configured"
+    fi
+    
+    if [[ "$REPAIR_MODE" == "true" ]]; then
+        info "Starting portfolio service repair..."
+        repair_installation
+    else
+        info "Starting portfolio service setup..."
+        
+        check_root
+        install_prerequisites
+        create_user
+        create_directories
+        install_service
+        setup_logrotate
+        setup_sudo
+        setup_nginx
+        create_env_file
+        setup_firewall
+        verify_installation
+        show_next_steps
+        
+        success "Portfolio service setup completed!"
+    fi
+}
+
+# Repair broken installation
+repair_installation() {
+    info "Diagnosing and repairing portfolio service installation..."
     
     check_root
-    install_prerequisites
-    create_user
-    create_directories
-    install_service
+    
+    # Check and repair user/group
+    if ! getent passwd "$SERVICE_USER" > /dev/null 2>&1; then
+        warning "User $SERVICE_USER not found, creating..."
+        create_user
+    else
+        success "✓ User $SERVICE_USER exists"
+    fi
+    
+    # Check and repair directories
+    if [[ ! -d "$APP_DIR" ]] || [[ "$(stat -c %U:%G "$APP_DIR" 2>/dev/null)" != "$SERVICE_USER:$SERVICE_GROUP" ]]; then
+        warning "Application directory issues found, fixing..."
+        create_directories
+    else
+        success "✓ Directories are configured correctly"
+    fi
+    
+    # Check and repair service installation
+    if [[ ! -f "/etc/systemd/system/$SERVICE_FILE" ]] || ! systemctl list-unit-files | grep -q "$SERVICE_NAME.service"; then
+        warning "Service installation issues found, reinstalling..."
+        install_service
+    else
+        # Try to fix service issues
+        info "Reloading systemd configuration..."
+        systemctl daemon-reload
+        sleep 2
+        
+        if ! systemctl is-enabled --quiet "$SERVICE_NAME" 2>/dev/null; then
+            warning "Service not enabled, enabling..."
+            retry_systemd_operation "systemctl enable $SERVICE_NAME"
+        fi
+        
+        success "✓ Service installation repaired"
+    fi
+    
+    # Repair other components
     setup_logrotate
     setup_sudo
     setup_nginx
     create_env_file
-    setup_firewall
-    verify_installation
-    show_next_steps
     
-    success "Portfolio service setup completed!"
+    # Final verification
+    verify_installation
+    
+    success "Portfolio service repair completed!"
+}
+
+# Parse command line arguments
+parse_arguments() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --repair)
+                REPAIR_MODE=true
+                info "Repair mode enabled - will fix broken installations"
+                shift
+                ;;
+            --dry-run)
+                DRY_RUN=true
+                info "Dry run mode enabled - no changes will be made"
+                shift
+                ;;
+            --help|-h)
+                show_usage
+                exit 0
+                ;;
+            --uninstall)
+                uninstall_service
+                exit 0
+                ;;
+            --status)
+                systemctl status "$SERVICE_NAME"
+                exit 0
+                ;;
+            *)
+                error "Unknown argument: $1. Use --help for usage information."
+                ;;
+        esac
+    done
+}
+
+# Show usage information
+show_usage() {
+    cat << 'EOF'
+Usage: ./setup-service.sh [OPTIONS]
+
+Setup systemd service for portfolio application.
+
+Options:
+  --repair           Fix broken installations and service issues
+  --dry-run          Preview what will be done without making changes
+  --uninstall        Remove the portfolio service completely
+  --status           Show current service status
+  --help, -h         Show this help message
+
+Examples:
+  ./setup-service.sh                    # Normal setup
+  ./setup-service.sh --repair           # Fix broken installation
+  ./setup-service.sh --dry-run          # Preview changes
+  ./setup-service.sh --uninstall        # Remove service
+EOF
+}
+
+# Uninstall service
+uninstall_service() {
+    info "Uninstalling portfolio service..."
+    
+    # Stop service if running
+    if systemctl is-active --quiet "$SERVICE_NAME" 2>/dev/null; then
+        info "Stopping $SERVICE_NAME service..."
+        systemctl stop "$SERVICE_NAME" || true
+    fi
+    
+    # Disable service
+    if systemctl is-enabled --quiet "$SERVICE_NAME" 2>/dev/null; then
+        info "Disabling $SERVICE_NAME service..."
+        systemctl disable "$SERVICE_NAME" || true
+    fi
+    
+    # Remove service files
+    rm -f "/etc/systemd/system/$SERVICE_FILE"
+    rm -f "/etc/logrotate.d/$SERVICE_NAME"
+    rm -f "/etc/sudoers.d/$SERVICE_NAME"
+    
+    # Reload systemd
+    systemctl daemon-reload
+    
+    success "Service uninstalled successfully"
 }
 
 # Handle command line arguments
-case "${1:-}" in
-    --uninstall)
-        info "Uninstalling portfolio service..."
-        systemctl stop "$SERVICE_NAME" || true
-        systemctl disable "$SERVICE_NAME" || true
-        rm -f "/etc/systemd/system/$SERVICE_FILE"
-        rm -f "/etc/logrotate.d/$SERVICE_NAME"
-        rm -f "/etc/sudoers.d/$SERVICE_NAME"
-        systemctl daemon-reload
-        success "Service uninstalled"
-        ;;
-    --status)
-        systemctl status "$SERVICE_NAME"
-        ;;
-    *)
-        main "$@"
-        ;;
-esac
+if [[ $# -gt 0 ]]; then
+    parse_arguments "$@"
+else
+    main
+fi

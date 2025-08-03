@@ -12,10 +12,18 @@ set -euo pipefail
 # Configuration
 DOMAIN="${1:-}"
 EMAIL="${2:-}"
+SKIP_DOMAIN_CHECK=false
+DRY_RUN=false
+FORCE_INSTALL=false
 REPO_URL="https://github.com/amirsalahshur/dev-resume.git"
 APP_DIR="/var/www/portfolio"
 SERVICE_USER="portfolio"
 LOG_FILE="/tmp/portfolio-install.log"
+ROLLBACK_LOG="/tmp/portfolio-rollback.log"
+INSTALLATION_STATE="/tmp/portfolio-install-state"
+
+# Track installation progress for rollback
+declare -a INSTALLATION_STEPS=()
 
 # Colors for output
 RED='\033[0;31m'
@@ -32,7 +40,149 @@ log() {
 error() {
     log "${RED}ERROR: $1${NC}"
     echo "Installation failed. Check $LOG_FILE for details."
+    echo "Last 20 lines of log:"
+    tail -20 "$LOG_FILE" 2>/dev/null || echo "Could not read log file"
+    
+    # Offer rollback option
+    if [[ -f "$INSTALLATION_STATE" ]] && [[ -s "$INSTALLATION_STATE" ]]; then
+        echo
+        echo "Would you like to rollback the installation? (y/N)"
+        read -t 30 -r response || response="n"
+        if [[ "$response" =~ ^[Yy]$ ]]; then
+            rollback_installation
+        else
+            echo "Rollback skipped. To manually rollback later, check $ROLLBACK_LOG"
+        fi
+    fi
+    
     exit 1
+}
+
+# Enhanced error function with command output
+error_with_output() {
+    local message="$1"
+    local command_output="${2:-}"
+    
+    log "${RED}ERROR: $message${NC}"
+    if [[ -n "$command_output" ]]; then
+        log "${RED}Command output: $command_output${NC}"
+    fi
+    echo "Installation failed. Check $LOG_FILE for details."
+    echo "Last 20 lines of log:"
+    tail -20 "$LOG_FILE" 2>/dev/null || echo "Could not read log file"
+    exit 1
+}
+
+# Execute command with error handling and logging
+execute_with_log() {
+    local description="$1"
+    local command="$2"
+    local allow_failure="${3:-false}"
+    
+    info "$description..."
+    log "Would execute: $command"
+    
+    if [[ "$DRY_RUN" == "true" ]]; then
+        info "[DRY RUN] Would execute: $command"
+        return 0
+    fi
+    
+    local output
+    if output=$(eval "$command" 2>&1); then
+        log "Success: $description"
+        log "Output: $output"
+        return 0
+    else
+        local exit_code=$?
+        log "Failed: $description (exit code: $exit_code)"
+        log "Error output: $output"
+        
+        if [[ "$allow_failure" != "true" ]]; then
+            error_with_output "$description failed" "$output"
+        else
+            warning "$description failed but continuing: $output"
+            return $exit_code
+        fi
+    fi
+}
+
+# Dry run aware track step
+track_step() {
+    local step="$1"
+    if [[ "$DRY_RUN" == "true" ]]; then
+        info "[DRY RUN] Would track step: $step"
+        return 0
+    fi
+    
+    INSTALLATION_STEPS+=("$step")
+    echo "$step" >> "$INSTALLATION_STATE"
+    log "Step completed: $step"
+}
+
+
+# Rollback installation
+rollback_installation() {
+    warning "Rolling back installation..."
+    
+    # Create rollback log
+    echo "Portfolio Installation Rollback - $(date)" > "$ROLLBACK_LOG"
+    
+    # Reverse the order of steps for rollback
+    local steps=()
+    while IFS= read -r line; do
+        steps=("$line" "${steps[@]}")
+    done < "$INSTALLATION_STATE" 2>/dev/null
+    
+    for step in "${steps[@]}"; do
+        case "$step" in
+            "prerequisites")
+                warning "Skipping rollback of prerequisites (would affect system packages)"
+                ;;
+            "nodejs")
+                warning "Skipping rollback of Node.js (may be used by other applications)"
+                ;;
+            "pm2")
+                info "Removing PM2..."
+                npm uninstall -g pm2 2>&1 | tee -a "$ROLLBACK_LOG" || true
+                ;;
+            "nginx")
+                info "Removing nginx configuration..."
+                rm -f /etc/nginx/sites-enabled/portfolio 2>&1 | tee -a "$ROLLBACK_LOG" || true
+                rm -f /etc/nginx/sites-available/portfolio 2>&1 | tee -a "$ROLLBACK_LOG" || true
+                systemctl reload nginx 2>&1 | tee -a "$ROLLBACK_LOG" || true
+                ;;
+            "ssl")
+                info "Removing SSL certificates..."
+                certbot delete --cert-name "$DOMAIN" --non-interactive 2>&1 | tee -a "$ROLLBACK_LOG" || true
+                ;;
+            "application")
+                info "Removing application files..."
+                systemctl stop portfolio 2>&1 | tee -a "$ROLLBACK_LOG" || true
+                systemctl disable portfolio 2>&1 | tee -a "$ROLLBACK_LOG" || true
+                rm -rf "$APP_DIR" 2>&1 | tee -a "$ROLLBACK_LOG" || true
+                ;;
+            "service")
+                info "Removing systemd service..."
+                systemctl stop portfolio 2>&1 | tee -a "$ROLLBACK_LOG" || true
+                systemctl disable portfolio 2>&1 | tee -a "$ROLLBACK_LOG" || true
+                rm -f /etc/systemd/system/portfolio.service 2>&1 | tee -a "$ROLLBACK_LOG" || true
+                systemctl daemon-reload 2>&1 | tee -a "$ROLLBACK_LOG" || true
+                ;;
+            "user")
+                info "Removing service user..."
+                userdel -r "$SERVICE_USER" 2>&1 | tee -a "$ROLLBACK_LOG" || true
+                ;;
+            "firewall")
+                info "Resetting firewall rules..."
+                ufw --force reset 2>&1 | tee -a "$ROLLBACK_LOG" || true
+                ;;
+        esac
+    done
+    
+    # Clean up temp files
+    rm -f "$INSTALLATION_STATE" "$LOG_FILE"
+    
+    echo "Rollback completed. Check $ROLLBACK_LOG for details."
 }
 
 success() {
@@ -65,24 +215,91 @@ show_banner() {
 EOF
 }
 
+# Parse command line arguments
+parse_arguments() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --skip-domain-check)
+                SKIP_DOMAIN_CHECK=true
+                shift
+                ;;
+            --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            --force)
+                FORCE_INSTALL=true
+                shift
+                ;;
+            --help|-h)
+                show_usage
+                exit 0
+                ;;
+            *)
+                if [[ -z "$DOMAIN" ]]; then
+                    DOMAIN="$1"
+                elif [[ -z "$EMAIL" ]]; then
+                    EMAIL="$1"
+                else
+                    error "Unknown argument: $1"
+                fi
+                shift
+                ;;
+        esac
+    done
+}
+
+# Show usage information
+show_usage() {
+    cat << 'EOF'
+Usage: ./install.sh [OPTIONS] DOMAIN EMAIL
+
+Install production-ready portfolio website with zero-downtime deployment.
+
+Arguments:
+  DOMAIN              Domain name (e.g., example.com, info.example.com)
+  EMAIL               Email for SSL certificate registration
+
+Options:
+  --skip-domain-check Skip domain format validation (use for edge cases)
+  --dry-run          Preview what will be done without making changes
+  --force            Override existing installations
+  --help, -h         Show this help message
+
+Examples:
+  ./install.sh example.com admin@example.com
+  ./install.sh info.subdomain.com admin@example.com --skip-domain-check
+  ./install.sh example.com admin@example.com --dry-run
+EOF
+}
+
 # Validate inputs
 validate_inputs() {
     if [[ -z "$DOMAIN" ]]; then
-        error "Domain name is required. Usage: $0 your-domain.com your-email@domain.com"
+        error "Domain name is required. Use --help for usage information."
     fi
     
     if [[ -z "$EMAIL" ]]; then
-        error "Email address is required. Usage: $0 your-domain.com your-email@domain.com"
+        error "Email address is required. Use --help for usage information."
     fi
     
-    # Basic domain validation
-    if [[ ! "$DOMAIN" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$ ]]; then
-        error "Invalid domain format: $DOMAIN"
+    # Enhanced domain validation to support subdomains (unless skipped)
+    if [[ "$SKIP_DOMAIN_CHECK" != "true" ]]; then
+        if [[ ! "$DOMAIN" =~ ^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$ ]]; then
+            error "Invalid domain format: $DOMAIN. Expected format: example.com, subdomain.example.com, or api.v2.example.com. Use --skip-domain-check to bypass validation."
+        fi
+    else
+        warning "Domain validation skipped for: $DOMAIN"
     fi
     
     # Basic email validation
     if [[ ! "$EMAIL" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
         error "Invalid email format: $EMAIL"
+    fi
+    
+    # Check for existing installation if not forcing
+    if [[ "$FORCE_INSTALL" != "true" ]] && [[ -d "$APP_DIR" ]] && [[ -f "/etc/systemd/system/portfolio.service" ]]; then
+        error "Portfolio appears to already be installed. Use --force to override existing installation."
     fi
 }
 
@@ -128,10 +345,11 @@ install_prerequisites() {
     info "Installing system prerequisites..."
     
     # Update package lists
-    apt-get update > /dev/null 2>&1
+    execute_with_log "Updating package lists" "apt-get update"
     
     # Install essential packages
-    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    execute_with_log "Installing essential packages" \
+        "DEBIAN_FRONTEND=noninteractive apt-get install -y \
         curl \
         wget \
         git \
@@ -144,8 +362,9 @@ install_prerequisites() {
         ufw \
         fail2ban \
         htop \
-        unattended-upgrades > /dev/null 2>&1
+        unattended-upgrades"
     
+    track_step "prerequisites"
     success "System prerequisites installed"
 }
 
@@ -153,29 +372,63 @@ install_prerequisites() {
 install_nodejs() {
     info "Installing Node.js 20..."
     
-    # Add Node.js 20 repository
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - > /dev/null 2>&1
-    
-    # Install Node.js
-    DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs > /dev/null 2>&1
-    
-    # Verify installation
-    NODE_VERSION=$(node --version | cut -d'v' -f2)
-    if ! printf '%s\n%s\n' "20.0.0" "$NODE_VERSION" | sort -V -C; then
-        error "Node.js version $NODE_VERSION is less than required 20.0.0"
+    # Check if Node.js is already installed and meets requirements
+    if command -v node >/dev/null 2>&1; then
+        local current_version
+        current_version=$(node --version | cut -d'v' -f2)
+        if printf '%s\n%s\n' "20.0.0" "$current_version" | sort -V -C; then
+            info "Node.js $current_version already installed and meets requirements"
+            return 0
+        else
+            info "Node.js $current_version found but upgrading to v20+"
+        fi
     fi
     
-    success "Node.js $NODE_VERSION installed"
+    # Add Node.js 20 repository
+    execute_with_log "Adding Node.js 20 repository" \
+        "curl -fsSL https://deb.nodesource.com/setup_20.x | bash -"
+    
+    # Install Node.js
+    execute_with_log "Installing Node.js" \
+        "DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs"
+    
+    # Verify installation
+    if ! command -v node >/dev/null 2>&1; then
+        error "Node.js installation failed - node command not found"
+    fi
+    
+    local node_version
+    node_version=$(node --version | cut -d'v' -f2)
+    if ! printf '%s\n%s\n' "20.0.0" "$node_version" | sort -V -C; then
+        error "Node.js version $node_version is less than required 20.0.0"
+    fi
+    
+    track_step "nodejs"
+    success "Node.js $node_version installed"
 }
 
 # Install PM2
 install_pm2() {
     info "Installing PM2 process manager..."
     
-    npm install -g pm2@latest > /dev/null 2>&1
+    # Check if PM2 is already installed
+    if command -v pm2 >/dev/null 2>&1; then
+        local current_version
+        current_version=$(pm2 --version)
+        info "PM2 $current_version already installed"
+        track_step "pm2"
+        return 0
+    fi
+    
+    execute_with_log "Installing PM2 globally" "npm install -g pm2@latest"
     
     # Verify installation
+    if ! command -v pm2 >/dev/null 2>&1; then
+        error "PM2 installation failed"
+    fi
+    
     PM2_VERSION=$(pm2 --version)
+    track_step "pm2"
     success "PM2 $PM2_VERSION installed"
 }
 
@@ -183,16 +436,33 @@ install_pm2() {
 install_nginx() {
     info "Installing and configuring Nginx..."
     
-    # Install Nginx
-    DEBIAN_FRONTEND=noninteractive apt-get install -y nginx > /dev/null 2>&1
+    # Check if Nginx is already installed
+    if command -v nginx >/dev/null 2>&1; then
+        info "Nginx already installed"
+        if systemctl is-active --quiet nginx; then
+            info "Nginx is already running"
+        else
+            execute_with_log "Starting nginx" "systemctl start nginx"
+        fi
+    else
+        # Install Nginx
+        execute_with_log "Installing nginx" \
+            "DEBIAN_FRONTEND=noninteractive apt-get install -y nginx"
+        
+        # Start and enable Nginx
+        execute_with_log "Starting nginx" "systemctl start nginx"
+    fi
     
-    # Start and enable Nginx
-    systemctl start nginx
-    systemctl enable nginx > /dev/null 2>&1
+    # Enable nginx (idempotent)
+    execute_with_log "Enabling nginx" "systemctl enable nginx" "true"
     
-    # Remove default site
-    rm -f /etc/nginx/sites-enabled/default
+    # Remove default site if it exists
+    if [[ -f "/etc/nginx/sites-enabled/default" ]]; then
+        execute_with_log "Removing default nginx site" \
+            "rm -f /etc/nginx/sites-enabled/default"
+    fi
     
+    track_step "nginx"
     success "Nginx installed and configured"
 }
 
@@ -264,6 +534,7 @@ EOF
     systemctl start portfolio
     systemctl enable portfolio > /dev/null 2>&1
     
+    track_step "application"
     success "Application built and started"
 }
 
@@ -288,28 +559,41 @@ configure_nginx() {
 generate_ssl() {
     info "Generating SSL certificate for $DOMAIN..."
     
-    # Stop nginx temporarily
-    systemctl stop nginx
+    # Check if certificate already exists
+    if [[ -d "/etc/letsencrypt/live/$DOMAIN" ]]; then
+        info "SSL certificate already exists for $DOMAIN"
+        return 0
+    fi
     
-    # Generate certificate
-    certbot certonly --standalone \
-        -d "$DOMAIN" \
-        -d "www.$DOMAIN" \
-        --email "$EMAIL" \
+    # Stop nginx temporarily
+    execute_with_log "Stopping nginx for certificate generation" "systemctl stop nginx"
+    
+    # Generate certificate with proper subdomain support
+    local cert_domains="-d $DOMAIN"
+    if [[ "$DOMAIN" != www.* ]]; then
+        cert_domains="$cert_domains -d www.$DOMAIN"
+    fi
+    
+    execute_with_log "Generating SSL certificate" \
+        "certbot certonly --standalone \
+        $cert_domains \
+        --email '$EMAIL' \
         --agree-tos \
-        --non-interactive > /dev/null 2>&1
+        --non-interactive"
     
     # Start nginx
-    systemctl start nginx
+    execute_with_log "Starting nginx after certificate generation" "systemctl start nginx"
     
     # Test nginx configuration
-    if ! nginx -t > /dev/null 2>&1; then
-        error "Nginx configuration test failed after SSL setup"
+    local nginx_test_output
+    if ! nginx_test_output=$(nginx -t 2>&1); then
+        error_with_output "Nginx configuration test failed after SSL setup" "$nginx_test_output"
     fi
     
     # Reload nginx
-    systemctl reload nginx
+    execute_with_log "Reloading nginx configuration" "systemctl reload nginx"
     
+    track_step "ssl"
     success "SSL certificate generated and configured"
 }
 
@@ -326,6 +610,7 @@ configure_firewall() {
     ufw allow from 127.0.0.1 to any port 3001 > /dev/null 2>&1
     ufw --force enable > /dev/null 2>&1
     
+    track_step "firewall"
     success "Firewall configured"
 }
 
@@ -469,6 +754,9 @@ EOF
 
 # Main installation function
 main() {
+    # Parse command line arguments first
+    parse_arguments "$@"
+    
     # Create log file
     touch "$LOG_FILE"
     
@@ -476,6 +764,11 @@ main() {
     validate_inputs
     check_root
     check_system
+    
+    if [[ "$DRY_RUN" == "true" ]]; then
+        warning "DRY RUN MODE - No changes will be made to the system"
+        info "This will show you what would be installed and configured"
+    fi
     
     info "Starting installation for domain: $DOMAIN with email: $EMAIL"
     
@@ -498,8 +791,25 @@ main() {
     success "Portfolio installation completed successfully!"
 }
 
-# Error handling
-trap 'error "Installation failed at line $LINENO. Check $LOG_FILE for details."' ERR
+# Error handling with rollback
+cleanup_on_error() {
+    local line_no=$1
+    log "${RED}Installation failed at line $line_no${NC}"
+    
+    # Offer rollback if installation has progressed
+    if [[ -f "$INSTALLATION_STATE" ]] && [[ -s "$INSTALLATION_STATE" ]]; then
+        echo
+        echo "Installation failed. Would you like to rollback? (Y/n)"
+        read -t 30 -r response || response="y"
+        if [[ ! "$response" =~ ^[Nn]$ ]]; then
+            rollback_installation
+        fi
+    fi
+    
+    exit 1
+}
+
+trap 'cleanup_on_error $LINENO' ERR
 
 # Run main installation
 main "$@"
